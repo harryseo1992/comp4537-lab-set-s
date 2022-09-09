@@ -12,3 +12,5 @@ app.get('/', function (req, res) {
 app.get('/contact', function (req, res) {
   res.send('Hey there, stranger! Here is my <a href="mailto:harryseo92@gmail.com"> email </a>.')
 })
+
+app.use(express.static('./public'));
