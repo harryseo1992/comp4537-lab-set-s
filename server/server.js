@@ -25,22 +25,53 @@ app.listen(8080, function(err) {
   if(err) console.log(err);
 })
 
-app.get('/cities', (req, res) => {
-  const cities = [];
-  res.json(cities);
+app.get('/cities/:city_name', function(req, res) {
+  console.log("received a request for "+ req.params.city_name);
+  cityModel.find({name: req.params.city_name}, function(err, cities){
+      if (err){
+        console.log("Error " + err);
+      }else{
+        console.log("Data "+ JSON.stringify(cities));
+      }
+      res.send(JSON.stringify(cities));
+  });
 });
+app.get('/cities', function(req, res) {
+  cityModel.find({}, function(err, cities){
+      if (err){
+        console.log("Error " + err);
+      }else{
+        console.log("Data "+ JSON.stringify(cities));
+      }
+      res.send(JSON.stringify(cities));
+  });
+});
+
+app.put("/insert", function(req, res){
+  cityModel.create({
+    name : req.body.name,
+    temperature : req.body.temperature,
+    description: req.body.description
+  }, function(err, data){
+    if(err) console.log(err);
+    else
+    console.log(data);
+    res.send("All good! Inserted.")
+  });
+})
+app.delete("/delete/:city_name", function(req, res){
+  cityModel.remove({
+    name : req.body.name
+  }, function(err, data){
+    if(err) console.log(err);
+    else
+    console.log(data);
+    res.send("All good! Delteted.")
+  });
+})
 
 app.post('/cities', (req, res) => {
   res.json(req.body);
-});
-
-app.put('/cities/:name', (req, res) => {
-  res.json(req.body);
-});
-
-app.delete('/cities/:name', (req, res) => {
-  const { name } = req.params;
-  res.json({ deleted: id });
 });
 
 var apikey = "efd172570402c278b06459e2135c88c6";
@@ -50,7 +81,7 @@ app.get('/', function(req, res) {
 })
 
 app.post("/", function(req, res) {
-  const url = "https://api.openweathermap.org/data/2.5/weather?q=" + req.body.cityName + "&units=metric&appid=" + apikey
+  const url = "https://api.openweathermap.org/data/2.5/weather?q=" + req.body.cityName + "&units=metric&appid=" + apikey;
 
   https.get(url, function(https_res) {
     https_res.on("data", function(data) {
