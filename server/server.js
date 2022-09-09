@@ -2,6 +2,22 @@ const express = require('express');
 const app = express();
 const https = require('https');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+mongoose.connect("mongodb://localhost:27017/test",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }
+);
+
+const citySchema = new mongoose.Schema({
+  name: String,
+  temperature: Number,
+  description: String
+});
+
+const cityModel = mongoose.model("cities", citySchema);
 
 app.use(bodyParser.urlencoded({
   extended: true
