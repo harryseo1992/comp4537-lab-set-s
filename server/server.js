@@ -1,6 +1,11 @@
 const express = require('express');
 const app = express();
 const https = require('https');
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 app.listen(8080, function(err) {
   if(err) console.log(err);
