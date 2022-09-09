@@ -14,8 +14,8 @@ app.get("/", function(req, res) {
 
   https.get(url, function(https_res) {
     https_res.on("data", function(data) {
-      res.write("<h1> " + cityName + " weather is " + JSON.parse(data).weather[0].description + "</h1>");
-      res.write("<h1> " + cityName + " temp is " + JSON.parse(data).main.temp + "</h1>");
+      res.write("<h1> " + cityName + " weather is " + JSON.parse(data).weather[0].description) + "</h1>";
+      res.write("<h1> " + cityName + " temp is " + JSON.parse(data).main.temp) + "</h1>";
       res.write('  <img src="' + "http://openweathermap.org/img/wn/" + JSON.parse(data).weather[0].icon + '.png"' + "/>");
       res.send();
     })
