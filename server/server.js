@@ -19,13 +19,29 @@ const citySchema = new mongoose.Schema({
 
 const cityModel = mongoose.model("cities", citySchema);
 
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+app.use(bodyParser.json());
 
 app.listen(8080, function(err) {
   if(err) console.log(err);
 })
+
+app.get('/cities', (req, res) => {
+  const cities = [];
+  res.json(cities);
+});
+
+app.post('/cities', (req, res) => {
+  res.json(req.body);
+});
+
+app.put('/cities/:name', (req, res) => {
+  res.json(req.body);
+});
+
+app.delete('/cities/:name', (req, res) => {
+  const { name } = req.params;
+  res.json({ deleted: id });
+});
 
 var apikey = "efd172570402c278b06459e2135c88c6";
 
