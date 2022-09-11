@@ -3,6 +3,9 @@ const app = express();
 const https = require('https');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const cors = require('cors');
+
+app.use(cors());
 
 mongoose.connect("mongodb://localhost:27017/test",
   {
