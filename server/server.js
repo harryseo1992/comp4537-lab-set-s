@@ -21,6 +21,10 @@ const cityModel = mongoose.model("cities", citySchema);
 
 app.use(bodyParser.json());
 
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
 app.listen(8080, function(err) {
   if(err) console.log(err);
 })
