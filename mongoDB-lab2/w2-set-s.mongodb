@@ -1,0 +1,111 @@
+use("test")
+
+// db.unicorns.find(
+//   {
+//     // selection
+//     "gender": "m"
+//   }, {
+//     // projection
+//     name: 1,
+//     gender: 1,
+//     _id: 0
+//   }
+// )
+// This returns any unicorn who loves 'apple' or 'orange'
+
+// db.unicorns.find(
+//   {
+//     $or: [
+//       {
+//         loves : {$in : ["apple"]}
+//       }, 
+//       {
+//         loves: {$in : ["carrot"]}
+//       }]
+//   }
+// )
+
+// the following should work too
+
+// db.unicorns.find({
+// 	loves: {$in:['apple','orange']}})
+
+// return all female unicorns which either love apples or weigh less than 500 pounds.
+
+// my answer
+
+// db.unicorns.find(
+//   {
+//     gender: "f",
+//     $or: [
+//       {
+//         loves: {$in : ["apple"]}
+//       },
+//       {
+//         weight: {$lt: 500}
+//       }
+//     ]
+//   }
+// )
+
+// while we can do without the $and, it
+// is more readable with the $and
+
+// db.unicorns.find({
+//   $and: [ {
+//     gender: "f"
+//   }, {
+//     $or: [
+//       {
+//         loves: {$in: ["apple"]}
+//       },
+//       {
+//         weight: {$lt: 500}
+//       }
+//     ]
+//   }
+//   ]
+// })
+
+// update unicorn
+
+// db.unicorns.update(
+//   {name: 'Roooooodles'},
+//   {$set: {weight: 590}}
+// )
+
+// check if weight has been updated
+
+// db.unicorns.find(
+//   {name: 'Roooooodles'}
+// )
+
+// can also use $push to update
+
+// $pull is also an operator we can use!
+
+// In MongoDB, the $pull operator is used to removing all instances of a value from an existing array.
+
+// upsert will update + insert
+
+// db.unicorns.updateOne(
+//   {name: 'Roooooodles'},
+//   {$set: {weight: 590}},
+//   {upsert: true}
+// )
+
+// upsert is useful because it helps for performance reasons -> For specific ones out of many?
+
+// multiple updates -> set multiple updates to true
+
+// db.unicorns.find({_id: ObjectId("6323ab1a834307cf1aa22d98")}, {});
+
+// sort unicorns by heaviest
+
+// db.unicorns.find().sort(
+//   {weight: -1}
+// )
+
+// db.unicorns.find({
+//    "dob": ISODate("1992-03-13T15:47:00Z")
+// })
