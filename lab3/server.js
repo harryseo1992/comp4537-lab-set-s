@@ -19,7 +19,7 @@ app.use(express.json());
 
 app.listen(port, async () => {
   try {
-    unicornsJSON = await readFileAsync('./data.js', 'utf-8')
+    unicornsJSON = await readFileAsync('./data.json', 'utf-8')
     if (!unicornsJSON) {
       console.log("Could not read the file");
       return
