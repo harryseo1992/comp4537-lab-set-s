@@ -46,7 +46,15 @@ app.get('/api/v1/unicorn/:id', (req, res) => {
 })
 
 app.patch('/api/v1/unicorn/:id', (req, res) => {
-  res.send('Update a unicorn')
+  unicornsJSON = unicornsJSON.map(({ _id, ...aUnicorn }) => {
+    if (_id == req.body._id) {
+      console.log("Bingo!");
+      return req.body;
+    } else {
+      return aUnicorn;
+    }
+  })
+  res.send("Updated successfully!");
 })
 
 app.delete('/api/v1/unicorn/:id', (req, res) => {
