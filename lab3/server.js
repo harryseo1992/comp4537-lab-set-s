@@ -72,6 +72,10 @@ app.patch('/api/v1/unicorn/:id', (req, res) => {
     }
   })
   res.send("Updated successfully!");
+  //update the file after patch
+  writeFileAsync('./data.json', JSON.stringify(unicornsJSON), 'utf-8')
+    .then(() => { })
+    .catch((err) => { console.log(err); })
 })
 
 app.delete('/api/v1/unicorn/:id', (req, res) => {
@@ -80,4 +84,8 @@ app.delete('/api/v1/unicorn/:id', (req, res) => {
   })
 
   res.send("Deleted successfully!");
+  //update the file after delete
+  writeFileAsync('./data.json', JSON.stringify(unicornsJSON), 'utf-8')
+    .then(() => { })
+    .catch((err) => { console.log(err); })
 })
