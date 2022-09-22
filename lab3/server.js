@@ -16,7 +16,7 @@ app.listen(port, () => {
 });
 
 app.get('/api/v1/unicorns', (req, res) => {
-  res.send('All the unicorns')
+  res.json(unicornsJSON)
 })
 
 app.post('/api/v1/unicorn', (req, res) => {
