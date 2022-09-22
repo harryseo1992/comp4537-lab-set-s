@@ -58,5 +58,9 @@ app.patch('/api/v1/unicorn/:id', (req, res) => {
 })
 
 app.delete('/api/v1/unicorn/:id', (req, res) => {
-  res.send('Delete a unicorn')
+  unicornsJSON = unicornsJSON.filter((element) => {
+    element._id != req.params.id
+  })
+
+  res.send("Deleted successfully!");
 })
