@@ -4,7 +4,7 @@
 // app.patch('/api/v1/unicorn/:id')     // - update a unicorn
 // app.delete('/api/v1/unicorn/:id')       // - delete unicorn
 
-var { unicornsJSON } = require('./data.js');
+// var { unicornsJSON } = require('./data.js');
 const { writeFile } = require('fs');
 const util = require('util');
 const writeFileAsync = util.promisify(writeFile);
