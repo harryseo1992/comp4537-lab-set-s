@@ -24,7 +24,18 @@ app.post('/api/v1/unicorn', (req, res) => {
 })
 
 app.get('/api/v1/unicorn/:id', (req, res) => {
-  res.send('Get a unicorn')
+  var found = false;
+  for (i = 0; i < unicornsJSON.length; i++) {
+    if (unicornsJSON[i]._id == req.params.id) {
+      found = true;
+      break
+    }
+  }
+  if (found) {
+    res.json(unicornsJSON[i]);
+    return
+  }
+  res.json({ msg: "not found" })
 })
 
 app.patch('/api/v1/unicorn/:id', (req, res) => {
