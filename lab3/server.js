@@ -5,9 +5,11 @@
 // app.delete('/api/v1/unicorn/:id')       // - delete unicorn
 
 // var { unicornsJSON } = require('./data.js');
-const { writeFile } = require('fs');
+const { writeFile, readFile } = require('fs');
 const util = require('util');
+const readFileAsync = util.promisify(readFile);
 const writeFileAsync = util.promisify(writeFile);
+var unicornsJSON = [];
 
 const express = require('express');
 
@@ -15,9 +17,21 @@ const app = express();
 const port = 8090;
 app.use(express.json());
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+app.listen(port, async () => {
+  try {
+    unicornsJSON = await readFileAsync('./data.json', 'utf-8')
+    if (!unicornsJSON) {
+      console.log("Could not read the file");
+      return
+    }
+    unicornsJSON = JSON.parse(unicornsJSON)
+    console.log(unicornsJSON);
+  } catch (error) {
+    console.log(error);
+  }
+
+  console.log(`Example app listening on port ${port}`)
+})
 
 app.get('/api/v1/unicorns', (req, res) => {
   res.json(unicornsJSON);
