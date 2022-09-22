@@ -10,17 +10,24 @@ const express = require('express');
 
 const app = express();
 const port = 8090;
+app.use(express.json());
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
 
 app.get('/api/v1/unicorns', (req, res) => {
-  res.json(unicornsJSON)
+  res.json(unicornsJSON);
 })
 
 app.post('/api/v1/unicorn', (req, res) => {
-  res.send('Create a new unicorn')
+  unicornsJSON.push(req.body);
+
+  //Update the data.js file
+  writeFileAsync('./data.js', JSON.stringify(unicornsJSON), 'utf-8')
+    .then(() => { })
+    .catch((err) => { console.log(err); });
+  res.json(req.body);
 })
 
 app.get('/api/v1/unicorn/:id', (req, res) => {
