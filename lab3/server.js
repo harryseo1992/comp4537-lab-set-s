@@ -17,7 +17,7 @@ const app = express();
 const port = 8090;
 app.use(express.json());
 
-app.listen(port, async () => {
+app.listen(process.env.PORT || port, async () => {
   try {
     unicornsJSON = await readFileAsync('./data.json', 'utf-8')
     if (!unicornsJSON) {
