@@ -63,8 +63,8 @@ app.get('/api/v1/unicorn/:id', (req, res) => {
 })
 
 app.patch('/api/v1/unicorn/:id', (req, res) => {
-  unicornsJSON = unicornsJSON.map(({ _id, ...aUnicorn }) => {
-    if (_id == req.body._id) {
+  unicornsJSON = unicornsJSON.map((aUnicorn) => {
+    if (aUnicorn._id == req.body._id) {
       console.log("Bingo!");
       return req.body;
     } else {
