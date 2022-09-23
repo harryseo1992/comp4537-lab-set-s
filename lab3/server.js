@@ -41,7 +41,7 @@ app.post('/api/v1/unicorn', (req, res) => {
   unicornsJSON.push(req.body);
 
   //Update the data.js file
-  writeFileAsync('./data.js', JSON.stringify(unicornsJSON), 'utf-8')
+  writeFileAsync('./data.json', JSON.stringify(unicornsJSON), 'utf-8')
     .then(() => { })
     .catch((err) => { console.log(err); });
   res.json(req.body);
