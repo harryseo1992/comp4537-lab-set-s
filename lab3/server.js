@@ -79,13 +79,11 @@ app.patch('/api/v1/unicorn/:id', (req, res) => {
 })
 
 app.delete('/api/v1/unicorn/:id', (req, res) => {
-  unicornsJSON = unicornsJSON.filter((element) => {
-    element._id != req.params.id
-  })
+  unicornsJSON = unicornsJSON.filter((element) => element._id != req.params.id)
 
-  res.send("Deleted successfully!");
+  res.send("Deleted successfully?")
   //update the file after delete
   writeFileAsync('./data.json', JSON.stringify(unicornsJSON), 'utf-8')
     .then(() => { })
-    .catch((err) => { console.log(err); })
+    .catch((err) => { console.log(err); });
 })
