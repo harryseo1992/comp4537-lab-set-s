@@ -30,7 +30,7 @@ app.listen(process.env.PORT || port, async () => {
     console.log(error);
   }
 
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Example app listening on port ${port}`);
 })
 
 app.get('/api/v1/unicorns', (req, res) => {
@@ -59,7 +59,7 @@ app.get('/api/v1/unicorn/:id', (req, res) => {
     res.json(unicornsJSON[i]);
     return
   }
-  res.json({ msg: "not found" })
+  res.json({ msg: "not found" });
 })
 
 app.patch('/api/v1/unicorn/:id', (req, res) => {
@@ -75,13 +75,13 @@ app.patch('/api/v1/unicorn/:id', (req, res) => {
   //update the file after patch
   writeFileAsync('./data.json', JSON.stringify(unicornsJSON), 'utf-8')
     .then(() => { })
-    .catch((err) => { console.log(err); })
+    .catch((err) => { console.log(err); });
 })
 
 app.delete('/api/v1/unicorn/:id', (req, res) => {
-  unicornsJSON = unicornsJSON.filter((element) => element._id != req.params.id)
+  unicornsJSON = unicornsJSON.filter((element) => element._id != req.params.id);
 
-  res.send("Deleted successfully?")
+  res.send("Deleted successfully?");
   //update the file after delete
   writeFileAsync('./data.json', JSON.stringify(unicornsJSON), 'utf-8')
     .then(() => { })
