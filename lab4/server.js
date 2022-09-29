@@ -70,6 +70,7 @@ app.delete('/api/v2/unicorn/:id', (req, res) => {
     if (err) console.log(err);
     console.log(res);
   })
+  res.send("Deleted Successfully!");
 })
 
 const { Schema } = mongoose;
