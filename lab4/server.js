@@ -56,7 +56,13 @@ app.get('/api/v2/unicorn/:id', (req, res) => {
 })
 
 app.patch('/api/v2/unicorn/:id', (req, res) => {
-  res.send('Update a unicorn')
+  const { _id, ...rest } = req.body;
+  unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, rest, function (err, res) {
+    // Updated at most one doc, `res.nModified` contains the number
+    // of docs that MongoDB updated
+    if (err) console.log(err);
+    console.log(res);
+  })
 })
 
 app.delete('/api/v2/unicorn/:id', (req, res) => {
