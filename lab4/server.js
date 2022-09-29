@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
 const app = express();
 const port = 8082;
 
-app.listen(port, async() => {
+app.listen(process.env.PORT || port, async function (err) {
   try {
     await mongoose.connect('mongodb://localhost:27017/test');
   } catch (err) {
