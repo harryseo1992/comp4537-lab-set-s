@@ -20,7 +20,17 @@ app.listen(port, async() => {
 })
 
 app.get('/api/v2/unicorns', (req, res) => {
-  res.send('All the unicorns')
+  unicornModel.find({})
+    .then(docs => {
+      console.log(docs);
+      res.json(docs);
+    })
+    .catch(err => {
+      console.error(err);
+      res.json({
+        msg: "db reading .. err. Check with server devs"
+      });
+    });
 })
 
 app.post('/api/v2/unicorn', (req, res) => {
