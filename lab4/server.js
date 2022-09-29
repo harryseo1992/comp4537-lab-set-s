@@ -18,7 +18,6 @@ app.listen(port, async() => {
   }
   console.log(`Example app listening on port ${port}`)
 })
-app.use(express.json());
 
 app.get('/api/v2/unicorns', (req, res) => {
   unicornModel.find({})
@@ -34,13 +33,14 @@ app.get('/api/v2/unicorns', (req, res) => {
     });
 })
 
+app.use(express.json())
 app.post('/api/v2/unicorn', (req, res) => {
   unicornModel.create(req.body, function (err) {
     if (err) console.log(err);
-    // Saved!
+    // saved!
   });
-  res.json(req.body);
-})
+  res.json(req.body)
+})  
 
 app.get('/api/v2/unicorn/:id', (req, res) => {
   console.log(req.params.id);
@@ -60,9 +60,11 @@ app.patch('/api/v2/unicorn/:id', (req, res) => {
   unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, rest, function (err, res) {
     // Updated at most one doc, `res.nModified` contains the number
     // of docs that MongoDB updated
-    if (err) console.log(err);
-    console.log(res);
-  })
+    if (err) console.log(err)
+    console.log(res)
+  });
+
+  res.send("Updated successfully!")
 })
 
 app.delete('/api/v2/unicorn/:id', (req, res) => {
@@ -79,7 +81,8 @@ const unicornSchema = new Schema({
   "name": String,
   "weight": Number,
   "loves": [String],
-  "gender": {
+  "gender":  {
+    type: String,
     enum: ["f", "m"]
   },
   "vampires": Number,
