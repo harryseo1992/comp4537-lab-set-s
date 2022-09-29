@@ -38,3 +38,18 @@ app.patch('/api/v2/unicorn/:id', (req, res) => {
 app.delete('/api/v2/unicorn/:id', (req, res) => {
   res.send('Delete a unicorn')
 })
+
+const { Schema } = mongoose;
+
+const unicornSchema = new Schema({
+  "name": String,
+  "weight": Number,
+  "loves": [String],
+  "gender": {
+    enum: ["f", "m"]
+  },
+  "vampires": Number,
+  "dob": Date
+});
+
+const unicornModel = mongoose.model('unicorns', unicornSchema);
