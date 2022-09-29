@@ -38,7 +38,16 @@ app.post('/api/v2/unicorn', (req, res) => {
 })
 
 app.get('/api/v2/unicorn/:id', (req, res) => {
-  res.send('Get a unicorn')
+  console.log(req.params.id);
+  unicornModel.find({ _id: mongoose.Types.ObjectId(`${req.params.id}`)})
+    .then(doc => {
+      console.log(doc);
+      res.json(doc);
+    })
+    .catch(err => {
+      console.error(err);
+      res.json({ msg: "db reading .. err. Check with server devs" });
+    });
 })
 
 app.patch('/api/v2/unicorn/:id', (req, res) => {
