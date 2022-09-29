@@ -18,6 +18,7 @@ app.listen(port, async() => {
   }
   console.log(`Example app listening on port ${port}`)
 })
+app.use(express.json());
 
 app.get('/api/v2/unicorns', (req, res) => {
   unicornModel.find({})
@@ -34,7 +35,11 @@ app.get('/api/v2/unicorns', (req, res) => {
 })
 
 app.post('/api/v2/unicorn', (req, res) => {
-  res.send('Create a new unicorn')
+  unicornModel.create(req.body, function (err) {
+    if (err) console.log(err);
+    // Saved!
+  });
+  res.json(req.body);
 })
 
 app.get('/api/v2/unicorn/:id', (req, res) => {
