@@ -5,7 +5,7 @@ const app = express();
 const port = 8082;
 
 // Deploy to heroku or local env
-app.listen(process.env.HEROKU || port, async function (err) {
+app.listen(process.env.PORT || port, async function (err) {
   try {
     await mongoose.connect('mongodb://localhost:27017/test');
   } catch (err) {
