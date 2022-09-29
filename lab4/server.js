@@ -66,7 +66,10 @@ app.patch('/api/v2/unicorn/:id', (req, res) => {
 })
 
 app.delete('/api/v2/unicorn/:id', (req, res) => {
-  res.send('Delete a unicorn')
+  unicornModel.deleteOne({ _id: mongoose.Types.ObjectId(req.params.id) }, function (err, res) {
+    if (err) console.log(err);
+    console.log(res);
+  })
 })
 
 const { Schema } = mongoose;
