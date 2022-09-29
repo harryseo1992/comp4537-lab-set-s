@@ -1,16 +1,11 @@
-// app.get('/api/v2/unicorns')           // - get all the unicorns
-// app.post('/api/v2/unicorn')          // - create a new unicorn
-// app.get('/api/v2/unicorn/:id')       // - get a unicorn
-// app.patch('/api/v2/unicorn/:id')     // - update a unicorn
-// app.delete('/api/v2/unicorn/:id')       // - delete unicorns
-
 const express = require('express');
 const mongoose = require('mongoose');
 
 const app = express();
 const port = 8082;
 
-app.listen(process.env.PORT || port, async function (err) {
+// Deploy to heroku or local env
+app.listen(process.env.HEROKU || port, async function (err) {
   try {
     await mongoose.connect('mongodb://localhost:27017/test');
   } catch (err) {
