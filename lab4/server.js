@@ -4,7 +4,22 @@ const mongoose = require('mongoose');
 const app = express();
 const port = 8082;
 
-// Deploy to heroku or local env
+const { Schema } = mongoose;
+
+const unicornSchema = new Schema({
+  "name": String,
+  "weight": Number,
+  "loves": [String],
+  "gender":  {
+    type: String,
+    enum: ["f", "m"]
+  },
+  "vampires": Number,
+  "dob": Date
+});
+
+const unicornModel = mongoose.model('unicorns', unicornSchema);
+
 app.listen(process.env.PORT || port, async function (err) {
   try {
     await mongoose.connect('mongodb://localhost:27017/test');
@@ -69,19 +84,3 @@ app.delete('/api/v2/unicorn/:id', (req, res) => {
   })
   res.send("Deleted Successfully!");
 })
-
-const { Schema } = mongoose;
-
-const unicornSchema = new Schema({
-  "name": String,
-  "weight": Number,
-  "loves": [String],
-  "gender":  {
-    type: String,
-    enum: ["f", "m"]
-  },
-  "vampires": Number,
-  "dob": Date
-});
-
-const unicornModel = mongoose.model('unicorns', unicornSchema);
