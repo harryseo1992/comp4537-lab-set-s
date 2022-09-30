@@ -22,9 +22,9 @@ const unicornModel = mongoose.model('unicorns', unicornSchema);
 
 app.listen(process.env.PORT || port, async function (err) {
   try {
-    await mongoose.connect('mongodb://localhost:27017/test');
+    await mongoose.connect('mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/myFirstDatabase?retryWrites=true&w=majority');
   } catch (err) {
-    console.log('db error');
+    console.log(err);
   }
   console.log(`Example app listening on port ${port}`)
 })
