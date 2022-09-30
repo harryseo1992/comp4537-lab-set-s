@@ -20,9 +20,11 @@ const unicornSchema = new Schema({
 
 const unicornModel = mongoose.model('unicorns', unicornSchema);
 
-app.listen(process.env.PORT || port, async function (err) {
+const uri = 'mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+
+app.listen(process.env.PORT || port, function (err) {
   try {
-    await mongoose.connect('mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/myFirstDatabase?retryWrites=true&w=majority');
+    mongoose.connect('mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/myFirstDatabase?retryWrites=true&w=majority');
   } catch (err) {
     console.log(err);
   }
