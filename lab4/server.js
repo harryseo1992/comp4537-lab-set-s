@@ -22,9 +22,10 @@ const unicornModel = mongoose.model('unicorns', unicornSchema);
 
 const uri = 'mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
-app.listen(process.env.PORT || port, function (err) {
+app.listen(process.env.PORT || port, async function (err) {
   try {
     mongoose.connect('mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/myFirstDatabase?retryWrites=true&w=majority');
+    // await mongoose.connect('mongodb://localhost:27017/test');
   } catch (err) {
     console.log(err);
   }
@@ -69,7 +70,7 @@ app.get('/api/v2/unicorn/:id', (req, res) => {
 
 app.patch('/api/v2/unicorn/:id', (req, res) => {
   const { _id, ...rest } = req.body;
-  unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, rest, function (err, res) {
+  unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, {$set: {...rest}}, { runValidators: true }, function (err, res) {
     // Updated at most one doc, `res.nModified` contains the number
     // of docs that MongoDB updated
     if (err) console.log(err)
