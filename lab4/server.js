@@ -82,10 +82,24 @@ app.patch('/api/v2/unicorn/:id', (req, res) => {
 
 app.patch('/api/v2/unicornNewLovesFood/:id/', (req, res) => {
   unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, req.body, function (err, res) {
+    // we updated at most one document so res.nModified should be equal to 1
     if (err) console.log(err)
     console.log(res)
   });
 
+  res.send("Updated successfully!")
+})
+
+app.patch('/api/v2/unicornAddLovesFood/:id/:item', (req, res) => {
+  unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, {
+    $push: {
+      loves: req.body.newLoves
+    }
+  }, function (err, res) {
+    // we updated at most one document so res.nModified should be equal to 1
+    if (err) console.log(err)
+    console.log(res)
+  });
   res.send("Updated successfully!")
 })
 
