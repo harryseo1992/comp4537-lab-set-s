@@ -103,6 +103,19 @@ app.patch('/api/v2/unicornAddLovesFood/:id/:item', (req, res) => {
   res.send("Updated successfully!")
 })
 
+app.patch('/api/v2/unicornRemoveLovesFood/:id/:item', (req, res) => {
+  unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, {
+    $pull: {
+      loves: req.params.item
+    }
+  }, function (err, res) {
+    // we updated at most one document so res.nModified should be equal to 1
+    if (err) console.log(err)
+    console.log(res)
+  });
+  res.send("Updated successfully!")
+})
+
 app.delete('/api/v2/unicorn/:id', (req, res) => {
   unicornModel.deleteOne({ _id: mongoose.Types.ObjectId(req.params.id) }, function (err, res) {
     if (err) console.log(err);
