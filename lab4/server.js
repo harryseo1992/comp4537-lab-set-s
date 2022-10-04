@@ -80,6 +80,15 @@ app.patch('/api/v2/unicorn/:id', (req, res) => {
   res.send("Updated successfully!")
 })
 
+app.patch('/api/v2/unicornNewLovesFood/:id/', (req, res) => {
+  unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, req.body, function (err, res) {
+    if (err) console.log(err)
+    console.log(res)
+  });
+
+  res.send("Updated successfully!")
+})
+
 app.delete('/api/v2/unicorn/:id', (req, res) => {
   unicornModel.deleteOne({ _id: mongoose.Types.ObjectId(req.params.id) }, function (err, res) {
     if (err) console.log(err);
