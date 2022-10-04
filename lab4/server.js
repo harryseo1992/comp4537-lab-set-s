@@ -29,7 +29,7 @@ app.listen(process.env.PORT || port, async function (err) {
   } catch (err) {
     console.log(err);
   }
-  console.log(`Example app listening on port ${port}`)
+  // console.log(`Example app listening on port ${port}`)
 })
 
 app.get('/api/v2/unicorns', (req, res) => {
@@ -90,7 +90,7 @@ app.patch('/api/v2/unicornNewLovesFood/:id/', (req, res) => {
   res.send("Updated successfully!")
 })
 
-app.patch('/api/v2/unicornAddLovesFood/:id/:item', (req, res) => {
+app.patch('/api/v2/unicornAddLovesFood/:id/', (req, res) => {
   unicornModel.updateOne({ _id: mongoose.Types.ObjectId(req.params.id) }, {
     $push: {
       loves: req.body.newLoves
