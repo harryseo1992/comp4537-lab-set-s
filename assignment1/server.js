@@ -185,3 +185,19 @@ app.put('/api/v1/pokemon/:id', async (req, res) => {
     res.json({errMsg: "ValidationError: check your ..."})
   }
 })                   // - upsert a whole pokemon document
+
+app.patch('/api/v1/pokemon/:id', (req, res) => {
+  const { ...rest } = req.body;
+  try {
+    pokemonModelStructure.updateOne({ id: req.params.id }, {$set: {...rest}}, { runValidators: true })
+    res.json({
+      msg:"Updated Successfully",
+      pokeInfo: { id: req.params.id, ...rest}
+    });
+  } catch (err) {
+    console.log(err.errMsg);
+    res.json({
+      errMsg: "ValidationError: Check your..."
+    })
+  }
+})                 // - patch a pokemon document or a portion of the pokemon document
