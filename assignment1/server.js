@@ -78,3 +78,9 @@ app.listen(process.env.PORT || port, async () => {
   pokemonModelStructure = pokemonModel;
 })
 app.use(express.json());
+
+app.get('/api/v1/:params', (req, res) => {
+  if (req.params != "pokemons" || req.params != "pokemon" || req.params != "pokemonImage") {
+    res.json({msg: "Improper route. Check API docs plz."})
+  }
+})
