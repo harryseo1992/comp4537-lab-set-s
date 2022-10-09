@@ -85,14 +85,6 @@ const isNumber = (number) => {
   return !isNaN(parseFloat(number)) && !isNaN(number - 0);
 }
 
-// app.get('/api/v1/*', (req, res) => {
-//   // if (req.params.) {
-//   // if (req.params != /^pokemon$/i || req.params != /^pokemons$/i || req.params != /^pokemonImage$/i) {
-//     // console.log(req.params);
-//     res.json({msg: "Improper route. Check API docs plz."})
-//   // }
-// })
-
 app.get('/api/v1/pokemons', (req, res) => {
   const count = req.query.count;
   const after = req.query.after;
@@ -116,7 +108,7 @@ app.post('/api/v1/pokemon', (req, res) => {
   pokemonModelStructure.create(req.body, (err) => {
     if (err) {
       if (err.name == 'ValidationError') {
-        res.json({errMsg: "ValidationError: check your ..."})
+        res.json({errMsg: "ValidationError: check to make sure your inputs are correct"})
       } else {
         res.json({errMsg: err});
       }
@@ -144,7 +136,7 @@ app.get('/api/v1/pokemon/:id', (req, res) => {
       })
   } else {
     res.json({
-      errMsg: "Cast Error: pass pokemon id between 1 and 811"
+      errMsg: "CastingError: pass pokemon id between 1 and 811"
     })
   }
 })                   // - get a pokemon
@@ -190,7 +182,7 @@ app.put('/api/v1/pokemon/:id', async (req, res) => {
       pokeInfo: { id: req.params.id, ...rest}
     })
   } catch (err) {
-    res.json({errMsg: "ValidationError: check your ..."})
+    res.json({errMsg: "ValidationError: check to make sure your inputs are correct"})
   }
 })                   // - upsert a whole pokemon document
 
