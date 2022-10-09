@@ -3,6 +3,7 @@ const { default: mongoose, MongooseError } = require('mongoose');
 const port = 8088;
 const { Schema } = mongoose;
 const https = require('https');
+const fs = require('fs');
 // const uniqueValidator = require('mongoose-unique-validator');
 
 const app = express();
@@ -139,7 +140,7 @@ app.get('/api/v1/pokemon/:id', (req, res) => {
       .catch(err => {
         console.log(err);
         res.json({ 
-          errMsg: "Pokemon not found"
+          errMsg: "Database Error: Please try again"
         })
       })
   } else {
@@ -234,6 +235,16 @@ app.delete('/api/v1/pokemon/:id', async (req, res) => {
       res.json({errMsg: "Pokemon not found"});
     })
 })                // - delete a  pokemon 
+
+app.get('/api/doc', (req, res) => {
+  var path = __dirname + 'apidoc.md';
+  fs.readFile(path, 'utf-8', (err, data) => {
+    if (err) {
+      console.log(err);
+    }
+    res.send(marked(data.toString()));
+  })
+})
 
 app.get('/api/v1/*', (req, res) => {
   // Accessing any other paths than designated
