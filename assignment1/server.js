@@ -84,3 +84,22 @@ app.get('/api/v1/:params', (req, res) => {
     res.json({msg: "Improper route. Check API docs plz."})
   }
 })
+
+app.get('/api/v1/pokemons', (req, res) => {
+  const count = req.query.count;
+  const after = req.query.after;
+  pokemonModelStructure.find()
+    .sort({id: 1})
+    .limit(count)
+    .skip(after)
+    .then(docs => {
+      console.log(docs);
+      res.json(docs);
+    })
+    .catch (err => {
+      console.error(err);
+      res.json({
+        msg: "Pokemons not found."
+      });
+    });
+})     // - get all the pokemons after the 10th. List only Two.
