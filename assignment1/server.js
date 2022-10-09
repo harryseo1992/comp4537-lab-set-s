@@ -79,6 +79,12 @@ app.listen(process.env.PORT || port, async () => {
 })
 app.use(express.json());
 
+// ----helper function
+
+const isNumber = (number) => {
+  return !isNaN(parseFloat(number)) && !isNaN(number - 0);
+}
+
 app.get('/api/v1/:params', (req, res) => {
   if (req.params != "pokemons/*" || req.params != "pokemon/*" || req.params != "pokemonImage/*") {
     res.json({msg: "Improper route. Check API docs plz."})
