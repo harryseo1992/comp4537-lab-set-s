@@ -12,8 +12,8 @@ var pokemonModelStructure = null;
 
 app.listen(process.env.PORT || port, async () => {
   try {
-    // mongoose.connect('mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/pokemonDB?retryWrites=true&w=majority');
-    const x = await mongoose.connect('mongodb://localhost:27017/test')
+    mongoose.connect('mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/pokemonDatabase?retryWrites=true&w=majority');
+    // const x = await mongoose.connect('mongodb://localhost:27017/test')
     mongoose.connection.db.dropDatabase();
   } catch (err) {
     console.log(err);
