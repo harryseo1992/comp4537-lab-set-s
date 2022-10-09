@@ -93,13 +93,17 @@ app.get('/api/v1/pokemons', (req, res) => {
     .limit(count)
     .skip(after)
     .then(docs => {
-      console.log(docs);
-      res.json(docs);
+      if (docs && docs.length) {
+        console.log(docs);
+        res.json(docs);
+      } else {
+        res.json({errMsg: `Cannot find pokemon after id: ${after}`})
+      }
     })
     .catch (err => {
       console.error(err);
       res.json({
-        msg: "Pokemons not found."
+        msg: "DatabaseError: Try again or check your inputs."
       });
     });
 })     // - get all the pokemons after the 10th. List only Two.
@@ -136,7 +140,7 @@ app.get('/api/v1/pokemon/:id', (req, res) => {
       })
   } else {
     res.json({
-      errMsg: "CastingError: pass pokemon id between 1 and 811"
+      errMsg: "CastingError: pass pokemon id between 1 and 809"
     })
   }
 })                   // - get a pokemon
@@ -153,7 +157,7 @@ app.get('/api/v1/pokemonImage/:id', (req, res) => {
   if (isNumber(req.params.id) && req.params.id > 100) {
     pngNumValue = `${req.params.id}`;
   }
-  if (req.params.id > 811) {
+  if (req.params.id > 809) {
     res.json({errMsg: "Pokemon image not found"});
     return
   }
@@ -197,7 +201,7 @@ app.patch('/api/v1/pokemon/:id', (req, res) => {
   } catch (err) {
     console.log(err.errMsg);
     res.json({
-      errMsg: "ValidationError: Check your..."
+      errMsg: "ValidationError: check to make sure your inputs are correct"
     })
   }
 })                 // - patch a pokemon document or a portion of the pokemon document
