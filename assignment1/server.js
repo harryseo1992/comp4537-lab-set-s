@@ -103,3 +103,17 @@ app.get('/api/v1/pokemons', (req, res) => {
       });
     });
 })     // - get all the pokemons after the 10th. List only Two.
+
+app.post('/api/v1/pokemon', (req, res) => {
+  pokemonModelStructure.create(req.body, (err) => {
+    if (err) {
+      if (err.name == 'ValidationError') {
+        res.json({errMsg: "ValidationError: check your ..."})
+      } else {
+        res.json({errMsg: err});
+      }
+    } else {
+      res.json({ msg: "Added Successfully"});
+    }
+  });
+})   
