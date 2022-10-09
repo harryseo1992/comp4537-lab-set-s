@@ -88,16 +88,19 @@ const isNumber = (number) => {
 app.get('/api/v1/pokemons', (req, res) => {
   const count = req.query.count;
   const after = req.query.after;
-  pokemonModelStructure.find()
+  if ((!count && after) || (count && !after)) {
+    res.json({errMsg: "ValidationError: Either values for count or after is missing"})
+  } else {
+    pokemonModelStructure.find()
     .sort({id: 1})
     .limit(count)
     .skip(after)
     .then(docs => {
-      if (docs && docs.length) {
+      if ((count && docs && docs.length == count) || (!count && docs && docs.length)) {
         console.log(docs);
         res.json(docs);
       } else {
-        res.json({errMsg: `Cannot find pokemon after id: ${after}`})
+        res.json({errMsg: `Cannot find ${count} pokemon(s) after id: ${after}`})
       }
     })
     .catch (err => {
@@ -106,6 +109,7 @@ app.get('/api/v1/pokemons', (req, res) => {
         msg: "DatabaseError: Try again or check your inputs."
       });
     });
+  }
 })     // - get all the pokemons after the 10th. List only Two.
 
 app.post('/api/v1/pokemon', (req, res) => {
