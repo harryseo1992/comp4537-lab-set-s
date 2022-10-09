@@ -172,3 +172,16 @@ app.get('/api/v1/pokemonImage/:id', (req, res) => {
       res.json({errMsg: "Pokemon image not found"});
     })
 })              // - get a pokemon Image URL
+
+app.put('/api/v1/pokemon/:id', async (req, res) => {
+  const { ...rest } = req.body;
+  try {
+    await pokemonModelStructure.updateOne({ id: req.params.id }, {$set: {...rest}}, { upsert: true })
+    res.json({
+      msg: "Updated Successfully",
+      pokeInfo: { id: req.params.id, ...rest}
+    })
+  } catch (err) {
+    res.json({errMsg: "ValidationError: check your ..."})
+  }
+})                   // - upsert a whole pokemon document
