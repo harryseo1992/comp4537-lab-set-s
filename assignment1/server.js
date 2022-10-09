@@ -201,3 +201,28 @@ app.patch('/api/v1/pokemon/:id', (req, res) => {
     })
   }
 })                 // - patch a pokemon document or a portion of the pokemon document
+
+app.delete('/api/v1/pokemon/:id', async (req, res) => {
+  var deletedData;
+  await pokemonModelStructure.find( { id: req.params.id })
+    .then(doc => {
+      if (doc && doc.length) {
+        deletedData = doc[0];
+        pokemonModelStructure.findOneAndDelete({ id: req.params.id }, (err, res) => {
+          if (err) {
+            res.json({errMsg: "Pokemon not found"});
+          }
+        })
+        res.json({
+          msg: "Deleted Successfully",
+          pokeInfo: deletedData
+        })
+      } else {
+        res.json({errMsg: "Pokemon not found"})
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({errMsg: "Pokemon not found"});
+    })
+})                // - delete a  pokemon 
