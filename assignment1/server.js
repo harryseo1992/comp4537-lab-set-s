@@ -116,4 +116,27 @@ app.post('/api/v1/pokemon', (req, res) => {
       res.json({ msg: "Added Successfully"});
     }
   });
-})   
+})                      // - create a new pokemon
+
+app.get('/api/v1/pokemon/:id', (req, res) => {
+  if (isNumber(req.params.id)) {
+    pokemonModelStructure.find({id: req.params.id})
+      .then(doc => {
+        if (doc && doc.length) {
+          res.json(doc);
+        } else {
+          res.json({errMsg: "Pokemon not found"});
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        res.json({ 
+          errMsg: "Pokemon not found"
+        })
+      })
+  } else {
+    res.json({
+      errMsg: "Cast Error: pass pokemon id between 1 and 811"
+    })
+  }
+})                   // - get a pokemon
