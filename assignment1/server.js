@@ -85,11 +85,13 @@ const isNumber = (number) => {
   return !isNaN(parseFloat(number)) && !isNaN(number - 0);
 }
 
-app.get('/api/v1/:params', (req, res) => {
-  if (req.params != "pokemons/*" || req.params != "pokemon/*" || req.params != "pokemonImage/*") {
-    res.json({msg: "Improper route. Check API docs plz."})
-  }
-})
+// app.get('/api/v1/*', (req, res) => {
+//   // if (req.params.) {
+//   // if (req.params != /^pokemon$/i || req.params != /^pokemons$/i || req.params != /^pokemonImage$/i) {
+//     // console.log(req.params);
+//     res.json({msg: "Improper route. Check API docs plz."})
+//   // }
+// })
 
 app.get('/api/v1/pokemons', (req, res) => {
   const count = req.query.count;
@@ -232,3 +234,8 @@ app.delete('/api/v1/pokemon/:id', async (req, res) => {
       res.json({errMsg: "Pokemon not found"});
     })
 })                // - delete a  pokemon 
+
+app.get('/api/v1/*', (req, res) => {
+  // Accessing any other paths than designated
+  res.json({msg: "Improper route. Check API docs plz."})
+})
