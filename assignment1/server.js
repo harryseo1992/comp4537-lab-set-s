@@ -140,3 +140,35 @@ app.get('/api/v1/pokemon/:id', (req, res) => {
     })
   }
 })                   // - get a pokemon
+
+app.get('/api/v1/pokemonImage/:id', (req, res) => {
+  // url = https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/001.png
+  var pngNumValue;
+  if (isNumber(req.params.id) && req.params.id < 10) {
+    pngNumValue = `00${req.params.id}`
+  }
+  if (isNumber(req.params.id) && req.params.id > 10 && req.params.id < 100) {
+    pngNumValue = `0${req.params.id}`;
+  }
+  if (isNumber(req.params.id) && req.params.id > 100) {
+    pngNumValue = `${req.params.id}`;
+  }
+  if (req.params.id > 811) {
+    res.json({errMsg: "Pokemon image not found"});
+    return
+  }
+  pokemonModelStructure.findOne({id: req.params.id})
+    .then(doc => {
+      res.json({
+        pokemon: doc.name.english,
+        id: doc.id,
+        image: {
+          URL: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${pngNumValue}.png`
+        }
+      })
+    })
+    .catch(err => {
+      console.error(err);
+      res.json({errMsg: "Pokemon image not found"});
+    })
+})              // - get a pokemon Image URL
