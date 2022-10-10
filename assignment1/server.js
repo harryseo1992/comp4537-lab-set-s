@@ -195,10 +195,10 @@ app.put('/api/v1/pokemon/:id', async (req, res) => {
   }
 })                   // - upsert a whole pokemon document
 
-app.patch('/api/v1/pokemon/:id', (req, res) => {
+app.patch('/api/v1/pokemon/:id', async (req, res) => {
   const { ...rest } = req.body;
   try {
-    pokemonModelStructure.updateOne({ id: req.params.id }, {$set: {...rest}}, { runValidators: true })
+    await pokemonModelStructure.updateOne({ id: req.params.id }, {$set: {...rest}}, { runValidators: true })
     res.json({
       msg:"Updated Successfully",
       pokeInfo: { id: req.params.id, ...rest}
