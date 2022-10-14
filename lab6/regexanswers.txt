@@ -1,0 +1,7 @@
+Exercise 13
+
+[AGCT]*(ATG)([AGCT]{3}){1,}(TAA|TAG|TGA)[AGCT]{0,2}
+
+Exercise 17
+
+^0?(10)*1?$
