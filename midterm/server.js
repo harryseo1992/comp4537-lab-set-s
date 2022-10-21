@@ -97,6 +97,12 @@ app.get('/api/v1/pokemons', (req, res) => {
   }
 })
 
+app.get("*", (req, res) => {
+  res.json({
+    errMsg: "Improper route. Check API docs please"
+  })
+})
+
 function handleErr(err) {
   console.log(err);
   if (err instanceof mongoose.Error.ValidationError) {
