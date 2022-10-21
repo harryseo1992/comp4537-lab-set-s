@@ -97,6 +97,98 @@ app.get('/api/v1/pokemons', (req, res) => {
   }
 })
 
+app.get('/api/v1/pokemon/:id', async (req, res) => {
+  try {
+    // const { id } = req.params;
+    const docs = await pokeModel.find({ id: req.params.id });
+    if (docs.length != 0) {
+      res.json(docs);
+    } else {
+      res.json({ errMsg: "Pokemon not found" });
+    } 
+  } catch (err) {
+    res.json(handleErr(err));
+  }
+})
+
+app.use(express.json());
+
+app.post('/api/v1/pokemon/', async (req, res) => {
+  try {
+    const pokeDoc = await pokeModel.create(req.body);
+    res.json({
+      msg: "Added Successfully"
+    })
+  } catch (err) {
+    res.json(handleErr(err));
+  }
+})
+
+app.delete('/api/v1/pokemon/:id', async (req, res) => {
+  try {
+    const docs = await pokeModel.findOneAndRemove({ id: req.params.id });
+    if (docs) {
+      res.json({
+        msg: "Deleted Successfully"
+      })
+    } else {
+      res.json({
+        errMsg: "Pokemon not found"
+      })
+    }
+  } catch (err) {
+    res.json(handleErr(err));
+  }
+})
+
+app.put('/api/v1/pokemon/:id', async (req, res) => {
+  try {
+    const selection = { id: req.params.id };
+    const update = req.body;
+    const options = {
+      new: true,
+      runValidators: true,
+      overwrite: true
+    };
+    const doc = await pokeModel.findOneAndUpdate(selection, update, options);
+    if (doc) {
+      res.json({
+        msg: "Updated Successfully",
+        pokeInfo: doc
+      })
+    } else {
+      res.json({
+        msg: "Not found"
+      })
+    }
+  } catch (err) {
+    res.json(handleErr(err));
+  }
+})
+
+app.patch('/api/v1/pokemon/:id', async (req, res) => {
+  const selection = { id: req.params.id };
+  const { ...rest } = req.body;
+  // const set = { $set: {...rest} };
+  const update = req.body;
+  const options = { runValidators: true };
+  try {
+    const doc = await pokeModel.findOneAndUpdate(selection, update, options);
+    if (doc) {
+      res.json({
+        msg: "Updated Successfully",
+        pokeInfo: doc
+      });
+    } else {
+      res.json({
+        errMsg: "Not found"
+      });
+    }
+  } catch(err) {
+    res.json(handleErr(err));
+  }
+})
+
 app.get("*", (req, res) => {
   res.json({
     errMsg: "Improper route. Check API docs please"
