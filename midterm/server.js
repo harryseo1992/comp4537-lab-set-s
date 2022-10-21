@@ -67,14 +67,15 @@ app.get('/api/v1/pokemons', (req, res) => {
   if (!req.query["after"]) {
     req.query["after"] = 0
   }
-  var result = null;
+
   try {
-    https.get(url, function (res) {
+    // var result = null;
+    https.get(url, function (response) {
       var chunks = "";
-      res.on("data", function (chunk) {
+      response.on("data", function (chunk) {
         chunks += chunk;
       });
-      res.on("end", function (data) {
+      response.on("end", function (data) {
         const arr = JSON.parse(chunks);
         arr.map(element => {
           element["base"]["Speed Attack"] = element["base"]["Sp. Attack"];
@@ -82,10 +83,15 @@ app.get('/api/v1/pokemons', (req, res) => {
           element["base"]["Speed Defense"] = element["base"]["Sp. Defense"];
           delete element["base"]["Sp. Defense"];
         });
-        result = arr.slice(req.query["after"], req.query["count"]);
+        var result = [];
+        for (let i = 0; i < req.query['count']; i++) {
+          if (arr[i].id > req.query["after"]) {
+            result.push(arr[i])
+          }
+        }
+        res.json(result);
       })
     });
-    res.json(result);
   } catch (err) {
     res.json(handleErr(err));
   }
