@@ -2,9 +2,8 @@ const https = require('https');
 const mongoose = require('mongoose');
 const express = require('express');
 const morgan = require('morgan');
-const url = process.env.API_BASE_URL;
-const { createProxyMiddleware } = require('http-proxy-middleware');
-require('dotenv').config();
+const url = "https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json";
+
 const { Schema } = mongoose;
 
 var pokeModel = null;
@@ -60,3 +59,45 @@ app.listen(port, async () => {
     });
   })
 })
+
+app.get('/api/v1/pokemons', (req, res) => {
+  if (!req.query["count"]) {
+    req.query["count"] = 10;
+  }
+  if (!req.query["after"]) {
+    req.query["after"] = 0
+  }
+  var result = null;
+  try {
+    https.get(url, function (res) {
+      var chunks = "";
+      res.on("data", function (chunk) {
+        chunks += chunk;
+      });
+      res.on("end", function (data) {
+        const arr = JSON.parse(chunks);
+        arr.map(element => {
+          element["base"]["Speed Attack"] = element["base"]["Sp. Attack"];
+          delete element["base"]["Sp. Attack"];
+          element["base"]["Speed Defense"] = element["base"]["Sp. Defense"];
+          delete element["base"]["Sp. Defense"];
+        });
+        result = arr.slice(req.query["after"], req.query["count"]);
+      })
+    });
+    res.json(result);
+  } catch (err) {
+    res.json(handleErr(err));
+  }
+})
+
+function handleErr(err) {
+  console.log(err);
+  if (err instanceof mongoose.Error.ValidationError) {
+    return ({ errMsg: "ValidationError: check your ..." })
+  } else if (err instanceof mongoose.Error.CastError) {
+    return ({ errMsg: "CastError: check your ..." })
+  } else {
+    return ({ errMsg: err })
+  }
+}
