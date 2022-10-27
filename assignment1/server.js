@@ -63,8 +63,10 @@ const isNumber = (number) => {
 app.get('/api/v1/pokemons', (req, res) => {
   const count = req.query.count;
   const after = req.query.after;
-  if ((!count && after) || (count && !after)) {
-    res.json({errMsg: "ValidationError: Either values for count or after is missing"})
+  if ((!count && after)) {
+    throw new PokemonBadRequestMissingCount("count value is missing");
+  } else if ((count && !after)) {
+    throw new PokemonBadRequestMissingAfter("after value is missing");
   } else {
     pokemonModelStructure.find()
     .sort({id: 1})
