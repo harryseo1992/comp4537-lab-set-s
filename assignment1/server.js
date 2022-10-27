@@ -133,7 +133,7 @@ app.get('/api/v1/pokemons', (req, res) => {
         console.log(docs);
         res.json(docs);
       } else {
-        throw new PokemonBadRequestImproperCount(`Cannot find ${count} pokemon(s) after id: ${after}`);
+        return next(new PokemonBadRequestImproperCount(`Cannot find ${count} pokemon(s) after id: ${after}`));
       }
     })
     .catch (err => {
@@ -157,6 +157,9 @@ app.post('/api/v1/pokemon', (req, res) => {
 })                      // - create a new pokemon
 
 app.get('/api/v1/pokemon/:id', (req, res) => {
+  if (req.params.id == undefined) {
+    throw new PokemonBadRequestMissingID("Missing ID");
+  }
   if (isNumber(req.params.id)) {
     pokemonModel.find({id: req.params.id})
       .then(doc => {
