@@ -278,9 +278,10 @@ app.get('/api/doc', (req, res) => {
   })
 })
 
-app.get('/api/v1/*', (req, res) => {
-  // Accessing any other paths than designated
-  res.json({msg: "Improper route. Check API docs plz."})
+app.get("*", (req, res) => {
+  res.json({
+    msg: "Improper route. Check API docs plz."
+  })
 })
 
 app.use((err, req, res, next) => {
