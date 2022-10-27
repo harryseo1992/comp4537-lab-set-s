@@ -95,6 +95,13 @@ class PokemonBadRequestImproperAfter extends PokemonBadRequest {
   }
 }
 
+class PokemonBadRequestImproperIDFormat extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestImproperIDFormat";
+  }
+}
+
 class PokemonDbError extends Error {
   constructor(message) {
     super(message);
@@ -116,7 +123,7 @@ class PokemonImageNotFoundError extends PokemonDbError {
   }
 }
 
-app.get('/api/v1/pokemons', (req, res) => {
+app.get('/api/v1/pokemons', (req, res, next) => {
   const count = req.query.count;
   const after = req.query.after;
   if ((!count && after)) {
@@ -137,7 +144,7 @@ app.get('/api/v1/pokemons', (req, res) => {
       }
     })
     .catch (err => {
-      next(err);
+      return next(new PokemonDbError(err));
     });
   }
 })     // - get all the pokemons after the 10th. List only Two.
@@ -156,29 +163,16 @@ app.post('/api/v1/pokemon', (req, res) => {
   });
 })                      // - create a new pokemon
 
-app.get('/api/v1/pokemon/:id', (req, res) => {
-  if (req.query.id == undefined) {
-    throw new PokemonBadRequestMissingID("Missing ID");
+app.get('/api/v1/pokemon/:id', async (req, res, next) => {
+  if (!req.params.id) {
+    return next(new PokemonBadRequestMissingID("Missing ID"));
   }
-  if (isNumber(req.params.id)) {
-    pokemonModel.find({id: req.params.id})
-      .then(doc => {
-        if (doc && doc.length) {
-          res.json(doc);
-        } else {
-          res.json({errMsg: "Pokemon not found"});
-        }
-      })
-      .catch(err => {
-        console.log(err);
-        res.json({ 
-          errMsg: "Database Error: Please try again"
-        })
-      })
-  } else {
-    res.json({
-      errMsg: "CastingError: pass pokemon id between 1 and 809"
-    })
+  try {
+    var docs = await pokemonModel.find({id: req.params.id})
+    if (docs.length != 0) res.json(docs)
+    else return next(new PokemonNotFoundError("Pokemon not found!"));
+  } catch (error) {
+    return next(new PokemonBadRequestImproperIDFormat("CastingError: pass pokemon id between 1 and 809"))
   }
 })                   // - get a pokemon
 
@@ -291,6 +285,8 @@ app.use((err, req, res, next) => {
     res.status(400).send(err.message);
   } else if (err instanceof PokemonDbError) {
     res.status(500).send(err.message);
+  } else if (err instanceof PokemonNotFoundError) {
+    res.status(400).send(err.message);
   } else {
     res.status(500).send(err.message);
   }
