@@ -12,6 +12,20 @@ class PokemonBadRequestMissingID extends PokemonBadRequest {
   }
 }
 
+class PokemonBadRequestMissingBefore extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestMissingBefore";
+  }
+}
+
+class PokemonBadRequestMissingAfter extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestMissingAfter";
+  }
+}
+
 class PokemonDbError extends Error {
   constructor(message) {
     super(message);
