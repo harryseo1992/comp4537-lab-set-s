@@ -4,14 +4,7 @@ const port = 8088;
 const https = require('https');
 const fs = require('fs');
 const { returnPokemonSchema } = require('./pokemonSchema');
-const { 
-  PokemonBadRequest, 
-  PokemonBadRequestMissingID,
-  PokemonDbError,
-  PokemonNotFoundError,
-  PokemonImageNotFoundError
-} = require('./errorHandler');
-// const uniqueValidator = require('mongoose-unique-validator');
+
 
 const app = express();
 const typesURL = 'https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/types.json';
@@ -60,6 +53,69 @@ const isNumber = (number) => {
   return !isNaN(parseFloat(number)) && !isNaN(number - 0);
 }
 
+class PokemonBadRequest extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequest";
+  }
+}
+
+class PokemonBadRequestMissingID extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestMissingID";
+  }
+}
+
+class PokemonBadRequestMissingCount extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestMissingCount";
+  }
+}
+
+class PokemonBadRequestImproperCount extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestImproperCount";
+  }
+}
+
+class PokemonBadRequestMissingAfter extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestMissingAfter";
+  }
+}
+
+class PokemonBadRequestImproperAfter extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestImproperAfter";
+  }
+}
+
+class PokemonDbError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonDbError";
+  }
+}
+
+class PokemonNotFoundError extends PokemonDbError {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonNotFoundError";
+  }
+}
+
+class PokemonImageNotFoundError extends PokemonDbError {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonImageNotFoundError";
+  }
+}
+
 app.get('/api/v1/pokemons', (req, res) => {
   const count = req.query.count;
   const after = req.query.after;
@@ -68,7 +124,7 @@ app.get('/api/v1/pokemons', (req, res) => {
   } else if ((count && !after)) {
     throw new PokemonBadRequestMissingAfter("after value is missing");
   } else {
-    pokemonModelStructure.find()
+    pokemonModel.find()
     .sort({id: 1})
     .limit(count)
     .skip(after)
@@ -77,20 +133,17 @@ app.get('/api/v1/pokemons', (req, res) => {
         console.log(docs);
         res.json(docs);
       } else {
-        res.json({errMsg: `Cannot find ${count} pokemon(s) after id: ${after}`})
+        throw new PokemonBadRequestImproperCount(`Cannot find ${count} pokemon(s) after id: ${after}`);
       }
     })
     .catch (err => {
-      console.error(err);
-      res.json({
-        msg: "DatabaseError: Try again or check your inputs."
-      });
+      throw new PokemonDbError(`${err}: Check your inputs!`);
     });
   }
 })     // - get all the pokemons after the 10th. List only Two.
 
 app.post('/api/v1/pokemon', (req, res) => {
-  pokemonModelStructure.create(req.body, (err) => {
+  pokemonModel.create(req.body, (err) => {
     if (err) {
       if (err.name == 'ValidationError') {
         res.json({errMsg: "ValidationError: check to make sure your inputs are correct"})
@@ -105,7 +158,7 @@ app.post('/api/v1/pokemon', (req, res) => {
 
 app.get('/api/v1/pokemon/:id', (req, res) => {
   if (isNumber(req.params.id)) {
-    pokemonModelStructure.find({id: req.params.id})
+    pokemonModel.find({id: req.params.id})
       .then(doc => {
         if (doc && doc.length) {
           res.json(doc);
@@ -142,7 +195,7 @@ app.get('/api/v1/pokemonImage/:id', (req, res) => {
     res.json({errMsg: "Pokemon image not found"});
     return
   }
-  pokemonModelStructure.findOne({id: req.params.id})
+  pokemonModel.findOne({id: req.params.id})
     .then(doc => {
       res.json({
         pokemon: doc.name.english,
@@ -161,7 +214,7 @@ app.get('/api/v1/pokemonImage/:id', (req, res) => {
 app.put('/api/v1/pokemon/:id', async (req, res) => {
   const { ...rest } = req.body;
   try {
-    await pokemonModelStructure.updateOne({ id: req.params.id }, {$set: {...rest}}, { upsert: true })
+    await pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { upsert: true })
     res.json({
       msg: "Updated Successfully",
       pokeInfo: { id: req.params.id, ...rest}
@@ -174,7 +227,7 @@ app.put('/api/v1/pokemon/:id', async (req, res) => {
 app.patch('/api/v1/pokemon/:id', async (req, res) => {
   const { ...rest } = req.body;
   try {
-    await pokemonModelStructure.updateOne({ id: req.params.id }, {$set: {...rest}}, { runValidators: true })
+    await pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { runValidators: true })
     res.json({
       msg:"Updated Successfully",
       pokeInfo: { id: req.params.id, ...rest}
@@ -189,11 +242,11 @@ app.patch('/api/v1/pokemon/:id', async (req, res) => {
 
 app.delete('/api/v1/pokemon/:id', async (req, res) => {
   var deletedData;
-  await pokemonModelStructure.find( { id: req.params.id })
+  await pokemonModel.find( { id: req.params.id })
     .then(doc => {
       if (doc && doc.length) {
         deletedData = doc[0];
-        pokemonModelStructure.findOneAndDelete({ id: req.params.id }, (err, res) => {
+        pokemonModel.findOneAndDelete({ id: req.params.id }, (err, res) => {
           if (err) {
             res.json({errMsg: "Pokemon not found"});
           }
@@ -232,6 +285,8 @@ app.use((err, req, res, next) => {
     res.status(400).send(err.message);
   } else if (err instanceof PokemonBadRequestMissingID) {
     res.status(400).send(err.message);
+  } else if (err instanceof PokemonDbError) {
+    res.status(500).send(err.message);
   } else {
     res.status(500).send(err.message);
   }
