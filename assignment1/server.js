@@ -224,3 +224,13 @@ app.get('/api/v1/*', (req, res) => {
   // Accessing any other paths than designated
   res.json({msg: "Improper route. Check API docs plz."})
 })
+
+app.use((err, req, res, next) => {
+  if (err instanceof PokemonBadRequestMissingAfter) {
+    res.status(400).send(err.message);
+  } else if (err instanceof PokemonBadRequestMissingID) {
+    res.status(400).send(err.message);
+  } else {
+    res.status(500).send(err.message);
+  }
+})
