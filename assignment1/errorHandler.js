@@ -12,10 +12,10 @@ class PokemonBadRequestMissingID extends PokemonBadRequest {
   }
 }
 
-class PokemonBadRequestMissingBefore extends PokemonBadRequest {
+class PokemonBadRequestMissingCount extends PokemonBadRequest {
   constructor(message) {
     super(message);
-    this.name = "PokemonBadRequestMissingBefore";
+    this.name = "PokemonBadRequestMissingCount";
   }
 }
 
