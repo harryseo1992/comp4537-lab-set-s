@@ -137,7 +137,7 @@ app.get('/api/v1/pokemons', (req, res) => {
       }
     })
     .catch (err => {
-      throw new PokemonDbError(`${err}: Check your inputs!`);
+      next(err);
     });
   }
 })     // - get all the pokemons after the 10th. List only Two.
@@ -157,7 +157,7 @@ app.post('/api/v1/pokemon', (req, res) => {
 })                      // - create a new pokemon
 
 app.get('/api/v1/pokemon/:id', (req, res) => {
-  if (req.params.id == undefined) {
+  if (req.query.id == undefined) {
     throw new PokemonBadRequestMissingID("Missing ID");
   }
   if (isNumber(req.params.id)) {
