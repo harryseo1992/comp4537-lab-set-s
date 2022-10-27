@@ -4,6 +4,13 @@ const port = 8088;
 const https = require('https');
 const fs = require('fs');
 const { returnPokemonSchema } = require('./pokemonSchema');
+const { 
+  PokemonBadRequest, 
+  PokemonBadRequestMissingID,
+  PokemonDbError,
+  PokemonNotFoundError,
+  PokemonImageNotFoundError
+} = require('./errorHandler');
 // const uniqueValidator = require('mongoose-unique-validator');
 
 const app = express();
