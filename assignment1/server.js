@@ -1,65 +1,29 @@
 const express = require('express');
-const { default: mongoose, MongooseError } = require('mongoose');
+const { mongoose } = require('mongoose');
 const port = 8088;
-const { Schema } = mongoose;
 const https = require('https');
 const fs = require('fs');
+const { returnPokemonSchema } = require('./pokemonSchema');
 // const uniqueValidator = require('mongoose-unique-validator');
 
 const app = express();
 const typesURL = 'https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/types.json';
 const pokemonURL = 'https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json';
-var pokemonModelStructure = null;
+var pokemonModel = null;
 
 app.listen(process.env.PORT || port, async () => {
   try {
-    mongoose.connect('mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/pokemonDatabase?retryWrites=true&w=majority');
-    // const x = await mongoose.connect('mongodb://localhost:27017/test')
+    // mongoose.connect('mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/pokemonDatabase?retryWrites=true&w=majority');
+    const x = await mongoose.connect('mongodb://localhost:27017/test')
     mongoose.connection.db.dropDatabase();
   } catch (err) {
     console.log(err);
   }
 
-  var possibleTypes = [];
-  var pokemonSchema = new Schema({
-    "base" : {
-      "HP" : Number,
-      "Attack": Number,
-      "Defense": Number,
-      "Speed": Number,
-      "Sp. Attack": Number,
-      "Sp. Defense": Number
-    },
-    "id": {
-      type: Number,
-      unique: true
-    },
-    "name": {
-      "english": {type: String, maxlength: 20},
-      "japanese": {type: String, maxlength: 20},
-      "chinese": {type: String, maxlength: 20},
-      "french": {type: String, maxlength: 20}
-    },
-    "type": possibleTypes
-  })
+  // var possibleTypes = null;
+  var pokemonSchema = await returnPokemonSchema(); 
 
-  // pokemonSchema.plugin(uniqueValidator);
-
-  await https.get(typesURL, async (res) => {
-      var body = '';
-      res.setEncoding('utf-8');
-      res.on("data", (chunk) => {
-        body += chunk;
-      });
-      res.on("end", (data) => {
-        const arr = JSON.parse(body);
-        arr.map(element => {
-          possibleTypes.push(element);
-        })
-      })
-  });
-
-  const pokemonModel = mongoose.model('pokemons', pokemonSchema);
+  pokemonModel = mongoose.model('pokemons', pokemonSchema);
 
   // grab pokeymans
   https.get(pokemonURL, (res) => {
@@ -70,13 +34,16 @@ app.listen(process.env.PORT || port, async () => {
     res.on("end", (data) => {
       const arr = JSON.parse(chunks);
       arr.map(element => {
+        element["base"]["Speed Attack"] = element["base"]["Sp. Attack"];
+        delete element["base"]["Sp. Attack"];
+        element["base"]["Speed Defense"] = element["base"]["Sp. Defense"];
+        delete element["base"]["Sp. Defense"];
         pokemonModel.create(element, (err) => {
           if (err) console.log(err);
         })
       })
     })
   });
-  pokemonModelStructure = pokemonModel;
 })
 app.use(express.json());
 
