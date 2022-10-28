@@ -163,18 +163,15 @@ app.get('/api/v1/pokemons', (req, res, next) => {
   }
 })     // - get all the pokemons after the 10th. List only Two.
 
-app.post('/api/v1/pokemon', (req, res) => {
-  pokemonModel.create(req.body, (err) => {
-    if (err) {
-      if (err.name == 'ValidationError') {
-        res.json({errMsg: "ValidationError: check to make sure your inputs are correct"})
-      } else {
-        res.json({errMsg: err});
-      }
-    } else {
-      res.json({ msg: "Added Successfully"});
-    }
-  });
+app.post('/api/v1/pokemon', async (req, res, next) => {
+  try {
+    const newPokemon = await pokemonModel.create(req.body);
+    res.json({
+      msg: "Added Successfully"
+    })
+  } catch (error) {
+    return next(new PokemonDbError(error));
+  }
 })                      // - create a new pokemon
 
 app.get('/api/v1/pokemon/:id', async (req, res, next) => {
