@@ -246,29 +246,19 @@ app.patch('/api/v1/pokemon/:id', async (req, res, next) => {
   }
 })                 // - patch a pokemon document or a portion of the pokemon document
 
-app.delete('/api/v1/pokemon/:id', async (req, res) => {
-  var deletedData;
-  await pokemonModel.find( { id: req.params.id })
-    .then(doc => {
-      if (doc && doc.length) {
-        deletedData = doc[0];
-        pokemonModel.findOneAndDelete({ id: req.params.id }, (err, res) => {
-          if (err) {
-            res.json({errMsg: "Pokemon not found"});
-          }
-        })
-        res.json({
-          msg: "Deleted Successfully",
-          pokeInfo: deletedData
-        })
-      } else {
-        res.json({errMsg: "Pokemon not found"})
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      res.json({errMsg: "Pokemon not found"});
-    })
+app.delete('/api/v1/pokemon/:id', async (req, res, next) => {
+  try {
+    var pokemonObjectForDeletion = await pokemonModel.findOneAndRemove( { id: req.params.id });
+    if (pokemonObjectForDeletion) {
+      res.json({
+        msg: "Deleted Successfully"
+      });
+    } else {
+      return next(new PokemonNotFoundError("Pokemon not found!"));
+    }
+  } catch (error) {
+    return next(new PokemonDbError(error));
+  }
 })                // - delete a  pokemon 
 
 app.get('/api/doc', (req, res) => {
