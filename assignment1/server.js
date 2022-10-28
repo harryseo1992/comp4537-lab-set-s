@@ -109,6 +109,13 @@ class PokemonBadRequestImproperPUTRequestInputs extends PokemonBadRequest {
   }
 }
 
+class PokemonBadRequestImproperPATCHRequestInputs extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestImproperPATCHRequestInputs";
+  }
+}
+
 class PokemonDbError extends Error {
   constructor(message) {
     super(message);
@@ -226,7 +233,7 @@ app.put('/api/v1/pokemon/:id', async (req, res, next) => {
   }
 })                   // - upsert a whole pokemon document
 
-app.patch('/api/v1/pokemon/:id', async (req, res) => {
+app.patch('/api/v1/pokemon/:id', async (req, res, next) => {
   const { ...rest } = req.body;
   try {
     await pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { runValidators: true })
@@ -235,10 +242,7 @@ app.patch('/api/v1/pokemon/:id', async (req, res) => {
       pokeInfo: { id: req.params.id, ...rest}
     });
   } catch (err) {
-    console.log(err.errMsg);
-    res.json({
-      errMsg: "ValidationError: check to make sure your inputs are correct"
-    })
+    return next(new PokemonBadRequestImproperPATCHRequestInputs(err));
   }
 })                 // - patch a pokemon document or a portion of the pokemon document
 
