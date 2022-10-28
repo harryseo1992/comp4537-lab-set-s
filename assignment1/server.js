@@ -144,7 +144,7 @@ app.get('/api/v1/pokemons', (req, res, next) => {
       }
     })
     .catch (err => {
-      return next(new PokemonDbError(err));
+      return next(new PokemonDbError(err)); // TODO: This crashes the server. Find a way to not crash it
     });
   }
 })     // - get all the pokemons after the 10th. List only Two.
@@ -176,8 +176,7 @@ app.get('/api/v1/pokemon/:id', async (req, res, next) => {
   }
 })                   // - get a pokemon
 
-app.get('/api/v1/pokemonImage/:id', (req, res) => {
-  // url = https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/001.png
+app.get('/api/v1/pokemonImage/:id', (req, res, next) => {
   var pngNumValue;
   if (isNumber(req.params.id) && req.params.id < 10) {
     pngNumValue = `00${req.params.id}`
@@ -189,23 +188,22 @@ app.get('/api/v1/pokemonImage/:id', (req, res) => {
     pngNumValue = `${req.params.id}`;
   }
   if (req.params.id > 809) {
-    res.json({errMsg: "Pokemon image not found"});
-    return
+    return next(new PokemonImageNotFoundError("Pokemon image not found!"));
   }
-  pokemonModel.findOne({id: req.params.id})
-    .then(doc => {
+  try {
+    var pokemonObject = pokemonModel.findOne({id: req.params.id});
+    if (pokemonObject.length != 0) {
       res.json({
         pokemon: doc.name.english,
         id: doc.id,
         image: {
           URL: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${pngNumValue}.png`
         }
-      })
-    })
-    .catch(err => {
-      console.error(err);
-      res.json({errMsg: "Pokemon image not found"});
-    })
+      });
+    }
+  } catch (error) {
+    return next(new PokemonDbError(error));
+  }
 })              // - get a pokemon Image URL
 
 app.put('/api/v1/pokemon/:id', async (req, res) => {
@@ -286,6 +284,8 @@ app.use((err, req, res, next) => {
   } else if (err instanceof PokemonDbError) {
     res.status(500).send(err.message);
   } else if (err instanceof PokemonNotFoundError) {
+    res.status(400).send(err.message);
+  } else if (err instanceof PokemonImageNotFoundError) {
     res.status(400).send(err.message);
   } else {
     res.status(500).send(err.message);
