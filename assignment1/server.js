@@ -102,6 +102,13 @@ class PokemonBadRequestImproperIDFormat extends PokemonBadRequest {
   }
 }
 
+class PokemonBadRequestImproperPUTRequestInputs extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestImproperPUTRequestInputs";
+  }
+}
+
 class PokemonDbError extends Error {
   constructor(message) {
     super(message);
@@ -109,7 +116,7 @@ class PokemonDbError extends Error {
   }
 }
 
-class PokemonNotFoundError extends PokemonDbError {
+class PokemonNotFoundError extends PokemonBadRequest {
   constructor(message) {
     super(message);
     this.name = "PokemonNotFoundError";
@@ -206,7 +213,7 @@ app.get('/api/v1/pokemonImage/:id', (req, res, next) => {
   }
 })              // - get a pokemon Image URL
 
-app.put('/api/v1/pokemon/:id', async (req, res) => {
+app.put('/api/v1/pokemon/:id', async (req, res, next) => {
   const { ...rest } = req.body;
   try {
     await pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { upsert: true })
@@ -215,7 +222,7 @@ app.put('/api/v1/pokemon/:id', async (req, res) => {
       pokeInfo: { id: req.params.id, ...rest}
     })
   } catch (err) {
-    res.json({errMsg: "ValidationError: check to make sure your inputs are correct"})
+    return next(new PokemonBadRequestImproperPUTRequestInputs(err));
   }
 })                   // - upsert a whole pokemon document
 
@@ -277,16 +284,10 @@ app.get("*", (req, res) => {
 })
 
 app.use((err, req, res, next) => {
-  if (err instanceof PokemonBadRequestMissingAfter) {
-    res.status(400).send(err.message);
-  } else if (err instanceof PokemonBadRequestMissingID) {
+  if (err instanceof PokemonBadRequest) {
     res.status(400).send(err.message);
   } else if (err instanceof PokemonDbError) {
     res.status(500).send(err.message);
-  } else if (err instanceof PokemonNotFoundError) {
-    res.status(400).send(err.message);
-  } else if (err instanceof PokemonImageNotFoundError) {
-    res.status(400).send(err.message);
   } else {
     res.status(500).send(err.message);
   }
