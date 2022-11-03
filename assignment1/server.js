@@ -89,34 +89,6 @@ class PokemonBadRequestMissingAfter extends PokemonBadRequest {
   }
 }
 
-class PokemonBadRequestImproperAfter extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonBadRequestImproperAfter";
-  }
-}
-
-class PokemonBadRequestImproperIDFormat extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonBadRequestImproperIDFormat";
-  }
-}
-
-class PokemonBadRequestImproperPUTRequestInputs extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonBadRequestImproperPUTRequestInputs";
-  }
-}
-
-class PokemonBadRequestImproperPATCHRequestInputs extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonBadRequestImproperPATCHRequestInputs";
-  }
-}
-
 class PokemonDbError extends Error {
   constructor(message) {
     super(message);
