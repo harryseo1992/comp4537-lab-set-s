@@ -4,6 +4,7 @@ const port = 8088;
 const https = require('https');
 const fs = require('fs');
 const { returnPokemonSchema } = require('./pokemonSchema');
+const { asyncWrapper } = require('./asyncWrapper');
 
 
 const app = express();
@@ -137,7 +138,7 @@ class PokemonImageNotFoundError extends PokemonDbError {
   }
 }
 
-app.get('/api/v1/pokemons', (req, res, next) => {
+app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   const count = req.query.count;
   const after = req.query.after;
   if ((!count && after)) {
@@ -157,37 +158,26 @@ app.get('/api/v1/pokemons', (req, res, next) => {
         return next(new PokemonBadRequestImproperCount(`Cannot find ${count} pokemon(s) after id: ${after}`));
       }
     })
-    .catch (err => {
-      return next(new PokemonDbError(err)); // TODO: This crashes the server. Find a way to not crash it
-    });
   }
-})     // - get all the pokemons after the 10th. List only Two.
+}))     // - get all the pokemons after the 10th. List only Two.
 
-app.post('/api/v1/pokemon', async (req, res, next) => {
-  try {
-    const newPokemon = await pokemonModel.create(req.body);
-    res.json({
-      msg: "Added Successfully"
-    })
-  } catch (error) {
-    return next(new PokemonDbError(error));
-  }
-})                      // - create a new pokemon
+app.post('/api/v1/pokemon', asyncWrapper(async (req, res, next) => {
+  const newPokemon = await pokemonModel.create(req.body);
+  res.json({
+    msg: "Added Successfully"
+  })
+}))                      // - create a new pokemon
 
-app.get('/api/v1/pokemon/:id', async (req, res, next) => {
+app.get('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   if (!req.params.id) {
     return next(new PokemonBadRequestMissingID("Missing ID"));
   }
-  try {
-    var docs = await pokemonModel.find({id: req.params.id})
-    if (docs.length != 0) res.json(docs)
-    else return next(new PokemonNotFoundError("Pokemon not found!"));
-  } catch (error) {
-    return next(new PokemonBadRequestImproperIDFormat("CastingError: pass pokemon id between 1 and 809"))
-  }
-})                   // - get a pokemon
+  var docs = await pokemonModel.find({id: req.params.id})
+  if (docs.length != 0) res.json(docs)
+  else return next(new PokemonNotFoundError("Pokemon not found!"));
+}))                   // - get a pokemon
 
-app.get('/api/v1/pokemonImage/:id', (req, res, next) => {
+app.get('/api/v1/pokemonImage/:id', asyncWrapper(async (req, res, next) => {
   var pngNumValue;
   if (isNumber(req.params.id) && req.params.id < 10) {
     pngNumValue = `00${req.params.id}`
@@ -201,62 +191,46 @@ app.get('/api/v1/pokemonImage/:id', (req, res, next) => {
   if (req.params.id > 809) {
     return next(new PokemonImageNotFoundError("Pokemon image not found!"));
   }
-  try {
-    var pokemonObject = pokemonModel.findOne({id: req.params.id});
-    if (pokemonObject.length != 0) {
-      res.json({
-        pokemon: doc.name.english,
-        id: doc.id,
-        image: {
-          URL: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${pngNumValue}.png`
-        }
-      });
-    }
-  } catch (error) {
-    return next(new PokemonDbError(error));
-  }
-})              // - get a pokemon Image URL
-
-app.put('/api/v1/pokemon/:id', async (req, res, next) => {
-  const { ...rest } = req.body;
-  try {
-    await pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { upsert: true })
+  var pokemonObject = await pokemonModel.findOne({id: req.params.id});
+  if (pokemonObject.length != 0) {
     res.json({
-      msg: "Updated Successfully",
-      pokeInfo: { id: req.params.id, ...rest}
-    })
-  } catch (err) {
-    return next(new PokemonBadRequestImproperPUTRequestInputs(err));
-  }
-})                   // - upsert a whole pokemon document
-
-app.patch('/api/v1/pokemon/:id', async (req, res, next) => {
-  const { ...rest } = req.body;
-  try {
-    await pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { runValidators: true })
-    res.json({
-      msg:"Updated Successfully",
-      pokeInfo: { id: req.params.id, ...rest}
+      pokemon: pokemonObject.name.english,
+      id: pokemonObject.id,
+      image: {
+        URL: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${pngNumValue}.png`
+      }
     });
-  } catch (err) {
-    return next(new PokemonBadRequestImproperPATCHRequestInputs(err));
   }
-})                 // - patch a pokemon document or a portion of the pokemon document
+}))              // - get a pokemon Image URL
 
-app.delete('/api/v1/pokemon/:id', async (req, res, next) => {
-  try {
-    var pokemonObjectForDeletion = await pokemonModel.findOneAndRemove( { id: req.params.id });
-    if (pokemonObjectForDeletion) {
-      res.json({
-        msg: "Deleted Successfully"
-      });
-    } else {
-      return next(new PokemonNotFoundError("Pokemon not found!"));
-    }
-  } catch (error) {
-    return next(new PokemonDbError(error));
+app.put('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
+  const { ...rest } = req.body;
+  await pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { upsert: true })
+  res.json({
+    msg: "Updated Successfully",
+    pokeInfo: { id: req.params.id, ...rest}
+  })
+}))                   // - upsert a whole pokemon document
+
+app.patch('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
+  const { ...rest } = req.body;
+  await pokemonModel.updateOne({ id: req.params.id }, {$set: {...rest}}, { runValidators: true })
+  res.json({
+    msg:"Updated Successfully",
+    pokeInfo: { id: req.params.id, ...rest}
+  });
+}))                 // - patch a pokemon document or a portion of the pokemon document
+
+app.delete('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
+  var pokemonObjectForDeletion = await pokemonModel.findOneAndRemove( { id: req.params.id });
+  if (pokemonObjectForDeletion) {
+    res.json({
+      msg: "Deleted Successfully"
+    });
+  } else {
+    return next(new PokemonNotFoundError("Pokemon not found!"));
   }
-})                // - delete a  pokemon 
+}))                // - delete a  pokemon 
 
 app.get('/api/doc', (req, res) => {
   var path = __dirname + 'apidoc.md';
