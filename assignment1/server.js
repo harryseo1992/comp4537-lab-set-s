@@ -5,6 +5,16 @@ const https = require('https');
 const fs = require('fs');
 const { returnPokemonSchema } = require('./pokemonSchema');
 const { asyncWrapper } = require('./asyncWrapper');
+const {
+  PokemonBadRequest,
+  PokemonBadRequestMissingID,
+  PokemonBadRequestMissingCount,
+  PokemonBadRequestImproperCount,
+  PokemonBadRequestMissingAfter,
+  PokemonDbError,
+  PokemonNotFoundError,
+  PokemonImageNotFoundError
+} = require('./pokemonErrors');
 
 
 const app = express();
@@ -52,62 +62,6 @@ app.use(express.json());
 
 const isNumber = (number) => {
   return !isNaN(parseFloat(number)) && !isNaN(number - 0);
-}
-
-class PokemonBadRequest extends Error {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonBadRequest";
-  }
-}
-
-class PokemonBadRequestMissingID extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonBadRequestMissingID";
-  }
-}
-
-class PokemonBadRequestMissingCount extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonBadRequestMissingCount";
-  }
-}
-
-class PokemonBadRequestImproperCount extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonBadRequestImproperCount";
-  }
-}
-
-class PokemonBadRequestMissingAfter extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonBadRequestMissingAfter";
-  }
-}
-
-class PokemonDbError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonDbError";
-  }
-}
-
-class PokemonNotFoundError extends PokemonBadRequest {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonNotFoundError";
-  }
-}
-
-class PokemonImageNotFoundError extends PokemonDbError {
-  constructor(message) {
-    super(message);
-    this.name = "PokemonImageNotFoundError";
-  }
 }
 
 app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
