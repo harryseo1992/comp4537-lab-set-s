@@ -100,12 +100,15 @@ app.post('/api/v1/login', asyncWrapper(async (req, res) => {
 }))
 
 const auth = (req, res, next) => {
-  const token = req.header('auth-token')
-  if (!token) {
+  // const token = req.header('auth-token')
+  const { auth } = req.cookies;
+  // if (!token) {
+  if (!auth) {
     throw new PokemonBadRequest("Access denied")
   }
   try {
-    const verified = jwt.verify(token, process.env.TOKEN_SECRET) // nothing happens if token is valid
+    // const verified = jwt.verify(token, process.env.TOKEN_SECRET) // nothing happens if token is valid
+    const verified = jwt.verify(auth, process.env.TOKEN_SECRET) // nothing happens if token is valid
     next()
   } catch (err) {
     throw new PokemonBadRequest("Invalid token")
