@@ -67,23 +67,8 @@ const isNumber = (number) => {
   return !isNaN(parseFloat(number)) && !isNaN(number - 0);
 }
 
-const auth = (req, res, next) => {
-  const token = req.header('auth-token')
-  if (!token) {
-    throw new PokemonBadRequest("Access denied")
-  }
-  try {
-    const verified = jwt.verify(token, process.env.TOKEN_SECRET) // nothing happens if token is valid
-    next()
-  } catch (err) {
-    throw new PokemonBadRequest("Invalid token")
-  }
-}
-
-app.use(auth) // Boom! All routes below this line are protected
-
 const bcrypt = require("bcrypt")
-app.post('/register', asyncWrapper(async (req, res) => {
+app.post('/api/v1/register', asyncWrapper(async (req, res) => {
   const { username, password, email } = req.body
   const salt = await bcrypt.genSalt(10)
   const hashedPassword = await bcrypt.hash(password, salt)
@@ -94,7 +79,7 @@ app.post('/register', asyncWrapper(async (req, res) => {
 }))
 
 const jwt = require("jsonwebtoken")
-app.post('/login', asyncWrapper(async (req, res) => {
+app.post('/api/v1/login', asyncWrapper(async (req, res) => {
   const { username, password } = req.body
   const user = await userModel.findOne({ username })
   if (!user) {
@@ -111,6 +96,21 @@ app.post('/login', asyncWrapper(async (req, res) => {
 
   res.send(user)
 }))
+
+const auth = (req, res, next) => {
+  const token = req.header('auth-token')
+  if (!token) {
+    throw new PokemonBadRequest("Access denied")
+  }
+  try {
+    const verified = jwt.verify(token, process.env.TOKEN_SECRET) // nothing happens if token is valid
+    next()
+  } catch (err) {
+    throw new PokemonBadRequest("Invalid token")
+  }
+}
+
+app.use(auth) // Boom! All routes below this line are protected
 
 app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   const count = req.query.count;
