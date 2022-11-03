@@ -78,6 +78,7 @@ app.post('/register', asyncWrapper(async (req, res) => {
   res.send(user)
 }))
 
+const jwt = require("jsonwebtoken")
 app.post('/login', asyncWrapper(async (req, res) => {
   const { username, password } = req.body
   const user = await userModel.findOne({ username })
@@ -88,6 +89,11 @@ app.post('/login', asyncWrapper(async (req, res) => {
   if (!isPasswordCorrect) {
     throw new PokemonBadRequest("Password is incorrect")
   }
+
+  // Create and assign a token
+  const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
+  res.header('auth-token', token)
+
   res.send(user)
 }))
 
