@@ -1,5 +1,5 @@
 const express = require('express');
-const { mongoose } = require('mongoose');
+const { mongoose, now } = require('mongoose');
 const port = 8088;
 const https = require('https');
 const fs = require('fs');
@@ -23,6 +23,7 @@ const app = express();
 const typesURL = 'https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/types.json';
 const pokemonURL = 'https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json';
 var pokemonModel = null;
+var userModel = require('./pokeUser');
 
 app.listen(process.env.PORT || port, async () => {
   try {
@@ -65,6 +66,17 @@ app.use(express.json());
 const isNumber = (number) => {
   return !isNaN(parseFloat(number)) && !isNaN(number - 0);
 }
+
+const bcrypt = require("bcrypt")
+app.post('/register', asyncWrapper(async (req, res) => {
+  const { username, password, email } = req.body
+  const salt = await bcrypt.genSalt(10)
+  const hashedPassword = await bcrypt.hash(password, salt)
+  const userWithHashedPassword = { ...req.body, password: hashedPassword }
+
+  const user = await userModel.create(userWithHashedPassword)
+  res.send(user)
+}))
 
 app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   const count = req.query.count;
