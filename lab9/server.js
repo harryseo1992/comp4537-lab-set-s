@@ -67,6 +67,21 @@ const isNumber = (number) => {
   return !isNaN(parseFloat(number)) && !isNaN(number - 0);
 }
 
+const auth = (req, res, next) => {
+  const token = req.header('auth-token')
+  if (!token) {
+    throw new PokemonBadRequest("Access denied")
+  }
+  try {
+    const verified = jwt.verify(token, process.env.TOKEN_SECRET) // nothing happens if token is valid
+    next()
+  } catch (err) {
+    throw new PokemonBadRequest("Invalid token")
+  }
+}
+
+app.use(auth) // Boom! All routes below this line are protected
+
 const bcrypt = require("bcrypt")
 app.post('/register', asyncWrapper(async (req, res) => {
   const { username, password, email } = req.body
