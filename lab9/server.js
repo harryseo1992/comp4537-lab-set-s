@@ -78,6 +78,19 @@ app.post('/register', asyncWrapper(async (req, res) => {
   res.send(user)
 }))
 
+app.post('/login', asyncWrapper(async (req, res) => {
+  const { username, password } = req.body
+  const user = await userModel.findOne({ username })
+  if (!user) {
+    throw new PokemonBadRequest("User not found")
+  }
+  const isPasswordCorrect = await bcrypt.compare(password, user.password)
+  if (!isPasswordCorrect) {
+    throw new PokemonBadRequest("Password is incorrect")
+  }
+  res.send(user)
+}))
+
 app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   const count = req.query.count;
   const after = req.query.after;
