@@ -17,7 +17,7 @@ const {
 } = require('./pokemonErrors');
 const dotenv = require('dotenv');
 dotenv.config();
-
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const typesURL = 'https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/types.json';
@@ -60,7 +60,7 @@ app.listen(process.env.PORT || port, async () => {
   });
 })
 app.use(express.json());
-
+app.use(cookieParser());
 // ----helper function
 
 const isNumber = (number) => {
@@ -94,6 +94,8 @@ app.post('/api/v1/login', asyncWrapper(async (req, res) => {
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
   res.header('auth-token', token)
   console.log(token);
+  res.cookie('auth', token);
+  console.log(req.cookies);
   res.send(user)
 }))
 
