@@ -10,11 +10,20 @@ const App = () => {
 
   useEffect(()=> {
     const fetchPokemons = () => {
-      axios('https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json')
+      axios.get('https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/pokedex.json')
         .then(res => res.json())
         .then(data => setPokemons(data));
     }
     fetchPokemons();
   }, [])
+
+  const indexOfLastPokemon = currentPage * pokemonsPerPage;
+  const indexOfFirstPokemon = indexOfLastPokemon - pokemonsPerPage;
+
+  const currentPokemons = pokemons.slice(indexOfFirstPokemon, indexOfLastPokemon);
+
+  const numberOfPagesForAllPokemons = Math.ceil(pokemons.length / pokemonsPerPage);
+  
 }
 
+export default App;
