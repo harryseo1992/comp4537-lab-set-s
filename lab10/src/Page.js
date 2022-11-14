@@ -13,7 +13,7 @@ const Page = ({tenPokemons}) => {
     if (pokemon.id >= 10 && pokemon.id < 100) {
       pngNumValue = `0${pokemon.id}`;
     }
-    if (pokemon.id > 100) {
+    if (pokemon.id >= 100) {
       pngNumValue = `${pokemon.id}`;
     }
     const pokemonImageUrl = `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${pngNumValue}.png`
