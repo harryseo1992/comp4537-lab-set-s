@@ -5,6 +5,7 @@ const https = require('https');
 const fs = require('fs');
 const { returnPokemonSchema } = require('./pokemonSchema');
 const { asyncWrapper } = require('./asyncWrapper');
+const { handleErr } = require("./errorHandler.js")
 const {
   PokemonBadRequest,
   PokemonBadRequestMissingID,
@@ -13,11 +14,14 @@ const {
   PokemonBadRequestMissingAfter,
   PokemonDbError,
   PokemonNotFoundError,
-  PokemonImageNotFoundError
+  PokemonImageNotFoundError,
+  PokemonDuplicateError,
+  PokemonNoSuchRouteError
 } = require('./pokemonErrors');
 const dotenv = require('dotenv');
 dotenv.config();
 const cookieParser = require('cookie-parser');
+var userModel = require('./pokeUser');
 
 const app = express();
 const typesURL = 'https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/types.json';
@@ -68,16 +72,20 @@ const isNumber = (number) => {
 
 const jwt = require("jsonwebtoken")
 
-const auth = (req, res, next) => {
-  // const token = req.header('auth-token')
-  const { auth } = req.cookies;
-  // if (!token) {
-  if (!auth) {
-    throw new PokemonBadRequest("Access denied")
+const auth = async (req, res, next) => {
+  const token = req.query.token;
+  // const { auth } = req.cookies;
+  if (!token) {
+  // if (!auth) {
+    throw new PokemonBadRequest("Access denied");
+  }
+  const rootUser = await userModel.findOne({ jwt: token });
+  if (!rootUser) {
+    throw new PokemonBadRequest("Expired token");
   }
   try {
-    // const verified = jwt.verify(token, process.env.TOKEN_SECRET) // nothing happens if token is valid
-    const verified = jwt.verify(auth, process.env.TOKEN_SECRET) // nothing happens if token is valid
+    const verified = jwt.verify(token, process.env.TOKEN_SECRET) // nothing happens if token is valid
+    // const verified = jwt.verify(auth, process.env.TOKEN_SECRET) // nothing happens if token is valid
     next()
   } catch (err) {
     throw new PokemonBadRequest("Invalid token")
@@ -109,13 +117,6 @@ app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   }
 }))     // - get all the pokemons after the 10th. List only Two.
 
-app.post('/api/v1/pokemon', asyncWrapper(async (req, res, next) => {
-  const newPokemon = await pokemonModel.create(req.body);
-  res.json({
-    msg: "Added Successfully"
-  })
-}))                      // - create a new pokemon
-
 app.get('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   if (!req.params.id) {
     return next(new PokemonBadRequestMissingID("Missing ID"));
@@ -123,7 +124,35 @@ app.get('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   var docs = await pokemonModel.find({id: req.params.id})
   if (docs.length != 0) res.json(docs)
   else return next(new PokemonNotFoundError("Pokemon not found!"));
-}))                   // - get a pokemon
+}))
+
+const adminAuth = async (req, res, next) => {
+  const token = req.query.token;
+  // const { auth } = req.cookies;
+  if (!token) {
+  // if (!auth) {
+    throw new PokemonBadRequest("Access denied");
+  }
+  const rootUser = await userModel.findOne({ jwt: token });
+  if (!rootUser) {
+    throw new PokemonBadRequest("Expired token");
+  }
+  if (!rootUser.isAdmin) {
+    throw new PokemonBadRequest("Cannot access admin-only API calls")
+  }
+}
+
+app.use(adminAuth);
+
+app.post('/api/v1/pokemon', asyncWrapper(async (req, res, next) => {
+  if (!req.body.id) throw new PokemonBadRequestMissingID();
+  const poke = await pokemonModel.find({ "id": req.body.id });
+  if (poke.length != 0) throw new PokemonDuplicateError();
+  const newPokemon = await pokemonModel.create(req.body);
+  res.json({
+    msg: "Added Successfully"
+  })
+}))                      // - create a new pokemon                 // - get a pokemon
 
 app.get('/api/v1/pokemonImage/:id', asyncWrapper(async (req, res, next) => {
   var pngNumValue;
@@ -191,17 +220,7 @@ app.get('/api/doc', (req, res) => {
 })
 
 app.get("*", (req, res) => {
-  res.json({
-    msg: "Improper route. Check API docs plz."
-  })
+  throw new PokemonNoSuchRouteError();
 })
 
-app.use((err, req, res, next) => {
-  if (err instanceof PokemonBadRequest) {
-    res.status(400).send(err.message);
-  } else if (err instanceof PokemonDbError) {
-    res.status(500).send(err.message);
-  } else {
-    res.status(500).send(err.message);
-  }
-})
+app.use(handleErr)
