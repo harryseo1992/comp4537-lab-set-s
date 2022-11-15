@@ -32,7 +32,12 @@ const schema = new mongoose.Schema({
     default: false
   },
   jwt: {
-    type: String
+    type: String,
+    default: ""
+  },
+  isJwtInvalidated: {
+    type: Boolean,
+    default: true
   }
 })
 

@@ -80,7 +80,7 @@ const auth = async (req, res, next) => {
     throw new PokemonBadRequest("Access denied");
   }
   const rootUser = await userModel.findOne({ jwt: token });
-  if (!rootUser) {
+  if (rootUser.isJwtInvalidated) {
     throw new PokemonBadRequest("Expired token");
   }
   try {

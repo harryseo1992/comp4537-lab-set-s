@@ -59,17 +59,21 @@ app.post('/login', asyncWrapper(async (req, res) => {
   }
 
   // Create and assign a token
-  const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
-  const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { jwt: token }}, options);
-  // await user.save();
-    // res.uri = doc.jwt;
-    res.header('auth-token', token);
-    console.log(token);
-    // res.cookie('auth', token);
-    // console.log(req.cookies);
+  if (user.jwt == "") {
+    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
+    const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { jwt: token, isJwtInvalidated: false }}, options);
     res.status(200).send({
       token: doc.jwt
     });
+  }
+
+  const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { isJwtInvalidated: false }}, options);
+  
+  // await user.save();
+    // res.uri = doc.jwt;
+    // res.cookie('auth', token);
+    // console.log(req.cookies);
+  res.status(200).send(doc);
 }));
 
 app.post('/logout', asyncWrapper(async (req, res) => {
@@ -83,6 +87,6 @@ app.post('/logout', asyncWrapper(async (req, res) => {
   if (!user) {
     throw new PokemonBadRequest("User not found")
   }
-  const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { jwt: "" }}, options);
+  const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { isJwtInvalidated: true }}, options);
   res.send(doc);
 }))
