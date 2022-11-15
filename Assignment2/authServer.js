@@ -16,6 +16,7 @@ const {
 } = require('./pokemonErrors');
 
 const app = express();
+const cookieParser = require('cookie-parser');
 
 app.listen(process.env.AUTHPORT, async () => {
   try {
@@ -31,7 +32,7 @@ app.use(cookieParser());
 
 const bcrypt = require("bcrypt")
 app.post('/register', asyncWrapper(async (req, res) => {
-  const { username, password, email } = req.body
+  const { username, password, email, isAdmin } = req.body
   const salt = await bcrypt.genSalt(10)
   const hashedPassword = await bcrypt.hash(password, salt)
   const userWithHashedPassword = { ...req.body, password: hashedPassword }
@@ -43,6 +44,11 @@ app.post('/register', asyncWrapper(async (req, res) => {
 const jwt = require("jsonwebtoken")
 app.post('/login', asyncWrapper(async (req, res) => {
   const { username, password } = req.body
+  const options = {
+    new: true,
+    runValidators: true,
+    overwrite: true
+  }
   const user = await userModel.findOne({ username })
   if (!user) {
     throw new PokemonBadRequest("User not found")
@@ -54,13 +60,29 @@ app.post('/login', asyncWrapper(async (req, res) => {
 
   // Create and assign a token
   const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
-    res.header('auth-token', token)
+  const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { jwt: token }}, options);
+  // await user.save();
+    // res.uri = doc.jwt;
+    res.header('auth-token', token);
     console.log(token);
-    res.cookie('auth', token);
-    console.log(req.cookies);
-    res.send(user)
+    // res.cookie('auth', token);
+    // console.log(req.cookies);
+    res.status(200).send({
+      token: doc.jwt
+    });
 }));
 
 app.post('/logout', asyncWrapper(async (req, res) => {
-  
+  const { username } = req.body;
+  const options = {
+    new: true,
+    runValidators: true,
+    overwrite: true
+  };
+  const user = await userModel.findOne({ username })
+  if (!user) {
+    throw new PokemonBadRequest("User not found")
+  }
+  const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { jwt: "" }}, options);
+  res.send(doc);
 }))
