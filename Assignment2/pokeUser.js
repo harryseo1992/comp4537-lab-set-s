@@ -27,10 +27,12 @@ const schema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  isAdmin: Boolean,
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
   jwt: {
-    type: String,
-    required: true
+    type: String
   }
 })
 
