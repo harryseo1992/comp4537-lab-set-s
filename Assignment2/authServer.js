@@ -6,13 +6,20 @@ var userModel = require('./pokeUser');
 const { asyncWrapper } = require('./asyncWrapper');
 const {
   PokemonBadRequest,
+  PokemonBadRequestUserNotFound,
+  PokemonBadRequestWrongPassword,
+  PokemonBadRequestInvalidatedToken,
+  PokemonBadRequestTokenNotFound,
+  PokemonBadRequestUserIsNotAdmin,
   PokemonBadRequestMissingID,
   PokemonBadRequestMissingCount,
   PokemonBadRequestImproperCount,
   PokemonBadRequestMissingAfter,
   PokemonDbError,
   PokemonNotFoundError,
-  PokemonImageNotFoundError
+  PokemonImageNotFoundError,
+  PokemonDuplicateError,
+  PokemonNoSuchRouteError
 } = require('./pokemonErrors');
 
 const app = express();
@@ -51,11 +58,11 @@ app.post('/login', asyncWrapper(async (req, res) => {
   }
   const user = await userModel.findOne({ username })
   if (!user) {
-    throw new PokemonBadRequest("User not found")
+    throw new PokemonBadRequestUserNotFound();
   }
   const isPasswordCorrect = await bcrypt.compare(password, user.password)
   if (!isPasswordCorrect) {
-    throw new PokemonBadRequest("Password is incorrect")
+    throw new PokemonBadRequestWrongPassword();
   }
 
   // Create and assign a token
@@ -68,11 +75,6 @@ app.post('/login', asyncWrapper(async (req, res) => {
   }
 
   const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { isJwtInvalidated: false }}, options);
-  
-  // await user.save();
-    // res.uri = doc.jwt;
-    // res.cookie('auth', token);
-    // console.log(req.cookies);
   res.status(200).send(doc);
 }));
 
@@ -85,7 +87,7 @@ app.post('/logout', asyncWrapper(async (req, res) => {
   };
   const user = await userModel.findOne({ username })
   if (!user) {
-    throw new PokemonBadRequest("User not found")
+    throw new PokemonBadRequestUserNotFound();
   }
   const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { isJwtInvalidated: true }}, options);
   res.send(doc);

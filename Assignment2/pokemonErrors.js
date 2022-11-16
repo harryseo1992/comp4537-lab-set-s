@@ -16,6 +16,60 @@ class PokemonBadRequestMissingID extends PokemonBadRequest {
   }
 }
 
+class PokemonBadRequestUserNotFound extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestUserNotFound";
+    this.message = "Error - Bad request - User not found";
+    this.pokeErrCode = 400;
+  }
+}
+
+class PokemonBadRequestWrongPassword extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestWrongPassword";
+    this.message = "Error - Bad request - Wrong password";
+    this.pokeErrCode = 400;
+  }
+}
+
+class PokemonBadRequestInvalidToken extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestInvalidToken";
+    this.message = "Error - Bad request - Invalid Token";
+    this.pokeErrCode = 400;
+  }
+}
+
+class PokemonBadRequestInvalidatedToken extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestInvalidatedToken";
+    this.message = "Error - Bad request - Token invalidated";
+    this.pokeErrCode = 400;
+  }
+}
+
+class PokemonBadRequestTokenNotFound extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestTokenNotFound";
+    this.message = "Error - Bad request - Token not found";
+    this.pokeErrCode = 400;
+  }
+}
+
+class PokemonBadRequestUserIsNotAdmin extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonBadRequestUserIsNotAdmin";
+    this.message = "Error - Bad request - Current user does not have admin privileges";
+    this.pokeErrCode = 400;
+  }
+}
+
 class PokemonBadRequestMissingCount extends PokemonBadRequest {
   constructor(message) {
     super(message);
@@ -90,6 +144,12 @@ class PokemonNoSuchRouteError extends PokemonBadRequest {
 
 module.exports = {
   PokemonBadRequest,
+  PokemonBadRequestUserNotFound,
+  PokemonBadRequestWrongPassword,
+  PokemonBadRequestInvalidatedToken,
+  PokemonBadRequestTokenNotFound,
+  PokemonBadRequestUserIsNotAdmin,
+  PokemonBadRequestInvalidToken,
   PokemonBadRequestMissingID,
   PokemonBadRequestMissingCount,
   PokemonBadRequestImproperCount,

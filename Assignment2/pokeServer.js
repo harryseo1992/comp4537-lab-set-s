@@ -8,6 +8,12 @@ const { asyncWrapper } = require('./asyncWrapper');
 const { handleErr } = require("./errorHandler.js")
 const {
   PokemonBadRequest,
+  PokemonBadRequestUserNotFound,
+  PokemonBadRequestWrongPassword,
+  PokemonBadRequestInvalidatedToken,
+  PokemonBadRequestTokenNotFound,
+  PokemonBadRequestInvalidToken,
+  PokemonBadRequestUserIsNotAdmin,
   PokemonBadRequestMissingID,
   PokemonBadRequestMissingCount,
   PokemonBadRequestImproperCount,
@@ -77,18 +83,18 @@ const auth = asyncWrapper(async (req, res, next) => {
   // const { auth } = req.cookies;
   if (!token) {
   // if (!auth) {
-    throw new PokemonBadRequest("Access denied");
+    throw new PokemonBadRequestTokenNotFound();
   }
   const rootUser = await userModel.findOne({ jwt: token });
   if (rootUser.isJwtInvalidated) {
-    throw new PokemonBadRequest("Expired token");
+    throw new PokemonBadRequestInvalidatedToken();
   }
   try {
     const verified = jwt.verify(token, process.env.TOKEN_SECRET) // nothing happens if token is valid
     // const verified = jwt.verify(auth, process.env.TOKEN_SECRET) // nothing happens if token is valid
     next()
   } catch (err) {
-    throw new PokemonBadRequest("Invalid token")
+    throw new PokemonBadRequestInvalidToken();
   }
 })
 
@@ -131,14 +137,14 @@ const adminAuth = asyncWrapper(async (req, res, next) => {
   // const { auth } = req.cookies;
   if (!token) {
   // if (!auth) {
-    throw new PokemonBadRequest("Access denied");
+    throw new PokemonBadRequestTokenNotFound();
   }
   const rootUser = await userModel.findOne({ jwt: token });
-  if (!rootUser) {
-    throw new PokemonBadRequest("Expired token");
+  if (rootUser.isJwtInvalidated) {
+    throw new PokemonBadRequestInvalidatedToken();
   }
   if (!rootUser.isAdmin) {
-    throw new PokemonBadRequest("Cannot access admin-only API calls")
+    throw new PokemonBadRequestUserIsNotAdmin();
   }
 })
 
