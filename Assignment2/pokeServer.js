@@ -103,28 +103,18 @@ const auth = asyncWrapper(async (req, res, next) => {
 
 app.use(auth) // Boom! All routes below this line are protected
 
-app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
-  const count = req.query.count;
-  const after = req.query.after;
-  if ((!count && after)) {
-    throw new PokemonBadRequestMissingCount("count value is missing");
-  } else if ((count && !after)) {
-    throw new PokemonBadRequestMissingAfter("after value is missing");
-  } else {
-    await pokemonModel.find()
-    .sort({id: 1})
-    .limit(count)
-    .skip(after)
-    .then(docs => {
-      if ((count && docs && docs.length == count) || (!count && docs && docs.length)) {
-        console.log(docs);
-        res.json(docs);
-      } else {
-        return next(new PokemonBadRequestImproperCount(`Cannot find ${count} pokemon(s) after id: ${after}`));
-      }
-    })
-  }
-}))     // - get all the pokemons after the 10th. List only Two.
+app.get('/api/v1/pokemons', asyncWrapper(async (req, res) => {
+  if (!req.query["count"])
+    req.query["count"] = 10
+  if (!req.query["after"])
+    req.query["after"] = 0
+  // try {
+  const docs = await pokemonModel.find({})
+    .sort({ "id": 1 })
+    .skip(req.query["after"])
+    .limit(req.query["count"])
+  res.json(docs)
+}))
 
 app.get('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   if (!req.params.id) {
