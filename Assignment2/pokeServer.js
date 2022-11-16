@@ -86,6 +86,9 @@ const auth = asyncWrapper(async (req, res, next) => {
     throw new PokemonBadRequestTokenNotFound();
   }
   const rootUser = await userModel.findOne({ jwt: token });
+  if (!rootUser) {
+    throw new PokemonBadRequestUserNotFound();
+  }
   if (rootUser.isJwtInvalidated) {
     throw new PokemonBadRequestInvalidatedToken();
   }
@@ -108,7 +111,7 @@ app.get('/api/v1/pokemons', asyncWrapper(async (req, res, next) => {
   } else if ((count && !after)) {
     throw new PokemonBadRequestMissingAfter("after value is missing");
   } else {
-    pokemonModel.find()
+    await pokemonModel.find()
     .sort({id: 1})
     .limit(count)
     .skip(after)
@@ -140,12 +143,16 @@ const adminAuth = asyncWrapper(async (req, res, next) => {
     throw new PokemonBadRequestTokenNotFound();
   }
   const rootUser = await userModel.findOne({ jwt: token });
+  if (!rootUser) {
+    throw new PokemonBadRequestUserNotFound();
+  }
   if (rootUser.isJwtInvalidated) {
     throw new PokemonBadRequestInvalidatedToken();
   }
   if (!rootUser.isAdmin) {
     throw new PokemonBadRequestUserIsNotAdmin();
   }
+  next();
 })
 
 app.use(adminAuth);
