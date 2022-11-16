@@ -72,7 +72,7 @@ const isNumber = (number) => {
 
 const jwt = require("jsonwebtoken")
 
-const auth = async (req, res, next) => {
+const auth = asyncWrapper(async (req, res, next) => {
   const token = req.query.token;
   // const { auth } = req.cookies;
   if (!token) {
@@ -90,7 +90,7 @@ const auth = async (req, res, next) => {
   } catch (err) {
     throw new PokemonBadRequest("Invalid token")
   }
-}
+})
 
 app.use(auth) // Boom! All routes below this line are protected
 
@@ -126,7 +126,7 @@ app.get('/api/v1/pokemon/:id', asyncWrapper(async (req, res, next) => {
   else return next(new PokemonNotFoundError("Pokemon not found!"));
 }))
 
-const adminAuth = async (req, res, next) => {
+const adminAuth = asyncWrapper(async (req, res, next) => {
   const token = req.query.token;
   // const { auth } = req.cookies;
   if (!token) {
@@ -140,7 +140,7 @@ const adminAuth = async (req, res, next) => {
   if (!rootUser.isAdmin) {
     throw new PokemonBadRequest("Cannot access admin-only API calls")
   }
-}
+})
 
 app.use(adminAuth);
 
