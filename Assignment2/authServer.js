@@ -69,11 +69,11 @@ app.post('/login', asyncWrapper(async (req, res) => {
   if (user.jwt == "") {
     const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
     const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { jwt: token, isJwtInvalidated: false }}, options);
-    res.status(200).send(doc);
+    res.send(doc);
   }
 
   const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { isJwtInvalidated: false }}, options);
-  res.status(200).send(doc);
+  res.send(doc);
 }));
 
 app.post('/logout', asyncWrapper(async (req, res) => {
@@ -83,7 +83,7 @@ app.post('/logout', asyncWrapper(async (req, res) => {
     runValidators: true,
     overwrite: true
   };
-  const user = await userModel.findOne({ username })
+  const user = await userModel.findOne({ username: username })
   if (!user) {
     throw new PokemonBadRequestUserNotFound();
   }
