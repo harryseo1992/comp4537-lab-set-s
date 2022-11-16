@@ -69,9 +69,7 @@ app.post('/login', asyncWrapper(async (req, res) => {
   if (user.jwt == "") {
     const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET)
     const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { jwt: token, isJwtInvalidated: false }}, options);
-    res.status(200).send({
-      token: doc.jwt
-    });
+    res.status(200).send(doc);
   }
 
   const doc = await userModel.findOneAndUpdate({ username: username }, {$set: { isJwtInvalidated: false }}, options);
