@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Box } from "@mui/system";
-import { Grid } from "@mui/material";
 import FilteredPokemonPage from "../FiteredPokemonPage/FilteredPokemonPage";
 
 const FilterablePokemon = () => {
@@ -9,12 +7,12 @@ const FilterablePokemon = () => {
   const [searchQueries, setSearchQueries] = useState({
     searchByName: "",
     searchByType: "",
-    searchByHp: "0",
-    searchByAttack: "0",
-    searchByDefense: "0",
-    searchBySpAttack: "0",
-    searchBySpDefense: "0",
-    searchBySpeed: "0",
+    searchByHp: null,
+    searchByAttack: null,
+    searchByDefense: null,
+    searchBySpAttack: null,
+    searchBySpDefense: null,
+    searchBySpeed: null,
   });
 
   useEffect(() => {

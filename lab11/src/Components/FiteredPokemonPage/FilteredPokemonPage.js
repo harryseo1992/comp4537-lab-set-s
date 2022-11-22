@@ -18,7 +18,6 @@ const FilteredPokemonPage = ({ pokemons, searchQueries, setSearchQueries }) => {
     indexOfFirstPokemon,
     indexOfLastPokemon
   );
-  console.log(currentPokemons);
   const numberOfPagesForAllPokemons = Math.ceil(
     filteredPokemons.length / pokemonsPerPage
   );
@@ -32,22 +31,38 @@ const FilteredPokemonPage = ({ pokemons, searchQueries, setSearchQueries }) => {
   };
 
   const forNotSpecifiedTypeSearch =
-    searchQueries.searchByType == "" ? true : false;
+    searchQueries.searchByType === "" ? true : false;
 
   useEffect(() => {
     setFilteredPokemons(
-      pokemons.filter((p) =>
-        p.name.english.toLowerCase().includes(searchQueries.searchByName) &&
-        forNotSpecifiedTypeSearch
-          ? p.type
-          : p.type.includes(searchQueries.searchByType)
+      pokemons.filter(
+        (pokemon) =>
+          pokemon.name.english
+            .toLowerCase()
+            .includes(searchQueries.searchByName) &&
+          (forNotSpecifiedTypeSearch
+            ? pokemon.type
+            : pokemon.type.includes(searchQueries.searchByType)) &&
+          pokemon.base["HP"] >= searchQueries.searchByHp &&
+          pokemon.base["Attack"] >= searchQueries.searchByAttack &&
+          pokemon.base["Defense"] >= searchQueries.searchByDefense &&
+          pokemon.base["Sp. Attack"] >= searchQueries.searchBySpAttack &&
+          pokemon.base["Sp. Defense"] >= searchQueries.searchBySpDefense &&
+          pokemon.base["Speed"] >= searchQueries.SearchBySpeed
       )
     );
   }, [
     pokemons,
     searchQueries.searchByName,
     searchQueries.searchByType,
+    searchQueries.searchByHp,
+    searchQueries.searchByAttack,
+    searchQueries.searchByDefense,
+    searchQueries.searchBySpAttack,
+    searchQueries.searchBySpDefense,
+    searchQueries.SearchBySpeed,
     filteredPokemons,
+    forNotSpecifiedTypeSearch,
   ]);
 
   return (
