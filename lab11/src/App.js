@@ -7,14 +7,16 @@ import { Grid } from "@mui/material";
 
 const App = () => {
   const [pokemons, setPokemons] = useState([]);
-  const [searchByName, setSearchByName] = useState("");
-  const [searchByType, setSearchByType] = useState("");
-  const [searchByHp, setSearchByHp] = useState(0);
-  const [searchByAttack, setSearchByAttack] = useState(0);
-  const [searchBySpeed, setSearchBySpeed] = useState(0);
-  const [searchByDefense, setSearchByDefense] = useState(0);
-  const [searchBySpAttack, setSearchBySpAttack] = useState(0);
-  const [searchBySpDefense, setSearchBySpDefense] = useState(0);
+  const [searchQueries, setSearchQueries] = useState({
+    searchByName: "",
+    searchByType: "",
+    searchByHp: "0",
+    searchByAttack: "0",
+    searchByDefense: "0",
+    searchBySpAttack: "0",
+    searchBySpDefense: "0",
+    searchBySpeed: "0",
+  });
   const [filteredPokemons, setFilteredPokemons] = useState(pokemons);
   const handleChange = (e) => {
     setSearchByName(e.target.value);
