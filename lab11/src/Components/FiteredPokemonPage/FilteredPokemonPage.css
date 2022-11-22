@@ -1,0 +1,10 @@
+.searchBar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.pagination {
+  margin: auto;
+}
