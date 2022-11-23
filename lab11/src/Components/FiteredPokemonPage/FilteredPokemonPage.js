@@ -43,12 +43,24 @@ const FilteredPokemonPage = ({ pokemons, searchQueries, setSearchQueries }) => {
           (forNotSpecifiedTypeSearch
             ? pokemon.type
             : pokemon.type.includes(searchQueries.searchByType)) &&
-          pokemon.base["HP"] >= searchQueries.searchByHp &&
-          pokemon.base["Attack"] >= searchQueries.searchByAttack &&
-          pokemon.base["Defense"] >= searchQueries.searchByDefense &&
-          pokemon.base["Sp. Attack"] >= searchQueries.searchBySpAttack &&
-          pokemon.base["Sp. Defense"] >= searchQueries.searchBySpDefense &&
-          pokemon.base["Speed"] >= searchQueries.SearchBySpeed
+          (searchQueries.searchByHp != null
+            ? pokemon.base["HP"] >= searchQueries.searchByHp
+            : pokemon.base["HP"]) &&
+          (searchQueries.searchByAttack != null
+            ? pokemon.base["Attack"] >= searchQueries.searchByAttack
+            : pokemon.base["Attack"]) &&
+          (searchQueries.searchByDefense != null
+            ? pokemon.base["Defense"] >= searchQueries.searchByDefense
+            : pokemon.base["Defense"]) &&
+          (searchQueries.searchBySpAttack != null
+            ? pokemon.base["Sp. Attack"] >= searchQueries.searchBySpAttack
+            : pokemon.base["Sp. Attack"]) &&
+          (searchQueries.searchBySpDefense != null
+            ? pokemon.base["Sp. Defense"] >= searchQueries.searchBySpDefense
+            : pokemon.base["Sp. Defense"]) &&
+          (searchQueries.SearchBySpeed != null
+            ? pokemon.base["Speed"] >= searchQueries.SearchBySpeed
+            : pokemon.base["Speed"])
       )
     );
   }, [
