@@ -24,6 +24,14 @@ app.listen(process.env.AUTHPORT, async () => {
   } catch (err) {
     throw new PokemonDbError(err);
   }
+  const doc = await userModel.findOne({ username: "admin" });
+  if (!doc)
+    userModel.create({
+      username: "admin",
+      password: bcrypt.hashSync("admin", 10),
+      role: "admin",
+      email: "admin@admin.ca",
+    });
 });
 app.use(express.json());
 app.use(cookieParser());
