@@ -3,15 +3,18 @@ const { mongoose, now } = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 var userModel = require("./pokeUser");
+var refreshTokenModel = require("./RefreshToken");
 const { asyncWrapper } = require("./asyncWrapper");
 const {
   PokemonBadRequestUserNotFound,
   PokemonBadRequestWrongPassword,
   PokemonDbError,
+  PokemonAuthError,
 } = require("./pokemonErrors");
 
 const app = express();
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 app.listen(process.env.AUTHPORT, async () => {
   try {
@@ -24,6 +27,11 @@ app.listen(process.env.AUTHPORT, async () => {
 });
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  cors({
+    exposedHeaders: ["auth-token-access", "auth-token-refresh"],
+  })
+);
 
 const bcrypt = require("bcrypt");
 app.post(
@@ -40,6 +48,41 @@ app.post(
 );
 
 const jwt = require("jsonwebtoken");
+app.post(
+  "/requestNewAccessToken",
+  asyncWrapper(async (req, res) => {
+    const refreshToken = req.header("auth-token-refresh");
+    if (!refreshToken) {
+      throw new PokemonAuthError("No Token: Please provide a token");
+    }
+    var isRefreshTokenInDb = await refreshTokenModel.find({
+      refreshToken: refreshToken,
+    });
+    if (isRefreshTokenInDb) {
+      console.log("token: ", refreshToken);
+      throw new PokemonAuthError(
+        "Invalid Toekn: Please provide a valid token."
+      );
+    }
+    try {
+      const payload = await jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+      const accessToken = jwt.sign(
+        { user: payload.user },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "10s" }
+      );
+      res.header("auth-token-access", accessToken);
+      res.send("Your access token has been renewed!");
+    } catch (error) {
+      throw new PokemonAuthError(
+        "Invalid Token: Please provide a valid token."
+      );
+    }
+  })
+);
 app.post(
   "/login",
   asyncWrapper(async (req, res) => {
@@ -59,22 +102,23 @@ app.post(
     }
 
     // Create and assign a token
-    if (user.jwt == "") {
-      const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-      const doc = await userModel.findOneAndUpdate(
-        { username: username },
-        { $set: { jwt: token, isJwtInvalidated: false } },
-        options
-      );
-      res.send(doc);
-    }
-
-    const doc = await userModel.findOneAndUpdate(
-      { username: username },
-      { $set: { isJwtInvalidated: false } },
-      options
+    const accessToken = jwt.sign(
+      { user: user },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "10s" }
     );
-    res.send(doc);
+    const refreshToken = jwt.sign(
+      { user: user },
+      process.env.REFRESH_TOKEN_SECRET
+    );
+    // refreshTokens.push(refreshToken); update into refreshTokenModel
+    refreshTokenModel.create({ refreshToken: refreshToken });
+
+    res.header("auth-token-access", accessToken);
+    res.header("auth-token-refresh", refreshToken);
+
+    // res.send("All good!")
+    res.send(user);
   })
 );
 
