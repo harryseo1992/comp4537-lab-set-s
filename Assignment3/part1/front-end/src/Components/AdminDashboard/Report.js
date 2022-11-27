@@ -8,7 +8,7 @@ const Report = ({ id, accessToken, setAccessToken, refreshToken }) => {
     const start = async () => {
       try {
         const res = await axiosJWT.get(
-          `http://localhost:6001/report?id=${id}`,
+          `http://localhost:6969/report?id=${id}`,
           {
             headers: {
               "auth-token-access": accessToken,
