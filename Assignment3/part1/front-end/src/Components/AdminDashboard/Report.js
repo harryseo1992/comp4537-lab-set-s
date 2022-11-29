@@ -21,12 +21,12 @@ const Report = ({ id, accessToken, setAccessToken, refreshToken }) => {
       }
     };
     start();
-  }, [id]);
+  }, [id, accessToken]);
 
   const refreshAccessToken = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:6001/requestNewAccessToken",
+        "http://localhost:6767/requestNewAccessToken",
         {},
         {
           headers: {
