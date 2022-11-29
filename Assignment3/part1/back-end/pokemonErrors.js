@@ -1,7 +1,7 @@
 class PokemonBadRequest extends Error {
   constructor(message) {
     super(message);
-    this.name = 'PokemonBadRequest';
+    this.name = "PokemonBadRequest";
     this.message = "Error - Bad request: check the API doc";
     this.pokeErrCode = 400;
   }
@@ -65,7 +65,8 @@ class PokemonBadRequestUserIsNotAdmin extends PokemonBadRequest {
   constructor(message) {
     super(message);
     this.name = "PokemonBadRequestUserIsNotAdmin";
-    this.message = "Error - Bad request - Current user does not have admin privileges";
+    this.message =
+      "Error - Bad request - Current user does not have admin privileges";
     this.pokeErrCode = 400;
   }
 }
@@ -83,7 +84,8 @@ class PokemonBadRequestImproperCount extends PokemonBadRequest {
   constructor(message) {
     super(message);
     this.name = "PokemonBadRequestImproperCount";
-    this.message = "Error - Bad request - improper count value: check the API doc";
+    this.message =
+      "Error - Bad request - improper count value: check the API doc";
     this.pokeErrCode = 400;
   }
 }
@@ -100,8 +102,9 @@ class PokemonBadRequestMissingAfter extends PokemonBadRequest {
 class PokemonDuplicateError extends PokemonBadRequest {
   constructor(message) {
     super(message);
-    this.name = 'PokemonDuplicateError';
-    this.message = "Error - PokemonDuplicateError: The Pokemons has already been inserted.";
+    this.name = "PokemonDuplicateError";
+    this.message =
+      "Error - PokemonDuplicateError: The Pokemons has already been inserted.";
     this.pokeErrCode = 400;
   }
 }
@@ -109,7 +112,7 @@ class PokemonDuplicateError extends PokemonBadRequest {
 class PokemonDbError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'PokemonDbError';
+    this.name = "PokemonDbError";
     this.message = "Error - DB error: Contact API owners for more info.";
     this.pokeErrCode = 500;
   }
@@ -136,9 +139,17 @@ class PokemonImageNotFoundError extends PokemonDbError {
 class PokemonNoSuchRouteError extends PokemonBadRequest {
   constructor(message) {
     super(message);
-    this.name = 'PokemonNoSuchRouteError';
+    this.name = "PokemonNoSuchRouteError";
     this.message = "Error - Improper Route: check the API doc";
     this.pokeErrCode = 404;
+  }
+}
+class PokemonAuthError extends PokemonBadRequest {
+  constructor(message) {
+    super(message);
+    this.name = "PokemonAuthError";
+    this.message = `Poke API Error - Authentication Error: ${message}`;
+    this.pokeErrCode = 401;
   }
 }
 
@@ -158,5 +169,6 @@ module.exports = {
   PokemonNotFoundError,
   PokemonImageNotFoundError,
   PokemonDuplicateError,
-  PokemonNoSuchRouteError
-}
+  PokemonNoSuchRouteError,
+  PokemonAuthError,
+};
