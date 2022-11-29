@@ -60,12 +60,13 @@ app.use(express.json());
 
 const jwt = require("jsonwebtoken");
 var userModel = require("./pokeUser");
+var pokeLogModel = require("./PokeLogSchema");
 
 app.use(morgan(":method"));
 
 app.use(cors());
 
-const authUser = asyncWrapper(async (res, res, next) => {
+const authUser = asyncWrapper(async (req, res, next) => {
   const token = req.header("auth-token-access");
 
   if (!token) {
@@ -90,6 +91,12 @@ const authAdmin = asyncWrapper(async (req, res, next) => {
   if (payload?.user?.role == "admin") {
     return next();
   }
+  const authLog = await pokeLogModel.create({
+    username: payload.user.username,
+    endpoint: req.path,
+    status: res.statusCode,
+  });
+  console.log("AuthLog: " + authLog);
   throw new PokemonAuthError("Access Denied");
 });
 
@@ -98,48 +105,91 @@ app.use(authUser);
 app.get(
   "/api/v1/pokemons",
   asyncWrapper(async (req, res) => {
+    const payload = jwt.verify(
+      req.header("auth-token-access"),
+      process.env.ACCESS_TOKEN_SECRET
+    );
     if (!req.query["count"]) req.query["count"] = 10;
     if (!req.query["after"]) req.query["after"] = 0;
-    // try {
-    const docs = await pokeModel
+    const docs = await pokemonModel
       .find({})
       .sort({ id: 1 })
       .skip(req.query["after"])
       .limit(req.query["count"]);
+    const log = await pokeLogModel.create({
+      username: payload.user.username,
+      endpoint: req.path,
+      status: res.statusCode,
+    });
+    console.log(log);
     res.json(docs);
-    // } catch (err) { res.json(handleErr(err)) }
   })
 );
 
 app.get(
   "/api/v1/pokemon",
   asyncWrapper(async (req, res) => {
-    // try {
+    const payload = jwt.verify(
+      req.header("auth-token-access"),
+      process.env.ACCESS_TOKEN_SECRET
+    );
     const { id } = req.query;
-    const docs = await pokeModel.find({ id: id });
-    if (docs.length != 0) res.json(docs);
-    else res.json({ errMsg: "Pokemon not found" });
-    // } catch (err) { res.json(handleErr(err)) }
+    const docs = await pokemonModel.find({ id: id });
+    if (docs.length != 0) {
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        status: res.statusCode,
+      });
+      console.log(log);
+      res.json(docs);
+    } else {
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        status: res.statusCode,
+      });
+      console.log(log);
+      return next(new PokemonNotFoundError("Pokemon not found!"));
+    }
   })
 );
-
-// app.get("*", (req, res) => {
-//   // res.json({
-//   //   msg: "Improper route. Check API docs plz."
-//   // })
-//   throw new PokemonNoSuchRouteError("");
-// })
-
 app.use(authAdmin);
 app.post(
   "/api/v1/pokemon/",
   asyncWrapper(async (req, res) => {
-    // try {
+    const payload = jwt.verify(
+      req.header("auth-token-access"),
+      process.env.ACCESS_TOKEN_SECRET
+    );
     console.log(req.body);
-    if (!req.body.id) throw new PokemonBadRequestMissingID();
-    const poke = await pokeModel.find({ id: req.body.id });
-    if (poke.length != 0) throw new PokemonDuplicateError();
-    const pokeDoc = await pokeModel.create(req.body);
+    if (!req.body.id) {
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        // status: new PokemonBadRequestMissingID().pokeErrCode,
+        status: res.statusCode,
+      });
+      console.log(log);
+      throw new PokemonBadRequestMissingID();
+    }
+    const poke = await pokemonModel.find({ id: req.body.id });
+    if (poke.length != 0) {
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        status: res.statusCode,
+      });
+      console.log(log);
+      throw new PokemonDuplicateError();
+    }
+    const pokeDoc = await pokemonModel.create(req.body);
+    const log = await pokeLogModel.create({
+      username: payload.user.username,
+      endpoint: req.path,
+      status: res.statusCode,
+    });
+    console.log(log);
     res.json({
       msg: "Added Successfully",
     });
@@ -150,14 +200,32 @@ app.post(
 app.delete(
   "/api/v1/pokemon",
   asyncWrapper(async (req, res) => {
-    // try {
-    const docs = await pokeModel.findOneAndRemove({ id: req.query.id });
-    if (docs)
+    const payload = jwt.verify(
+      req.header("auth-token-access"),
+      process.env.ACCESS_TOKEN_SECRET
+    );
+    const docs = await pokemonModel.findOneAndRemove({ id: req.query.id });
+    if (docs) {
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        status: res.statusCode,
+      });
+      console.log(log);
       res.json({
         msg: "Deleted Successfully",
       });
+    }
     // res.json({ errMsg: "Pokemon not found" })
-    else throw new PokemonNotFoundError("");
+    else {
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        status: res.statusCode,
+      });
+      console.log(log);
+      throw new PokemonNotFoundError("");
+    }
     // } catch (err) { res.json(handleErr(err)) }
   })
 );
@@ -165,7 +233,10 @@ app.delete(
 app.put(
   "/api/v1/pokemon/:id",
   asyncWrapper(async (req, res) => {
-    // try {
+    const payload = jwt.verify(
+      req.header("auth-token-access"),
+      process.env.ACCESS_TOKEN_SECRET
+    );
     const selection = { id: req.params.id };
     const update = req.body;
     const options = {
@@ -174,24 +245,36 @@ app.put(
       overwrite: true,
     };
     const doc = await pokeModel.findOneAndUpdate(selection, update, options);
-    // console.log(docs);
     if (doc) {
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        status: res.statusCode,
+      });
+      console.log(log);
       res.json({
         msg: "Updated Successfully",
         pokeInfo: doc,
       });
     } else {
-      // res.json({ msg: "Not found", })
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        status: res.statusCode,
+      });
+      console.log(log);
       throw new PokemonNotFoundError("");
     }
-    // } catch (err) { res.json(handleErr(err)) }
   })
 );
 
 app.patch(
   "/api/v1/pokemon/:id",
   asyncWrapper(async (req, res) => {
-    // try {
+    const payload = jwt.verify(
+      req.header("auth-token-access"),
+      process.env.ACCESS_TOKEN_SECRET
+    );
     const selection = { id: req.params.id };
     const update = req.body;
     const options = {
@@ -200,11 +283,23 @@ app.patch(
     };
     const doc = await pokeModel.findOneAndUpdate(selection, update, options);
     if (doc) {
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        status: res.statusCode,
+      });
+      console.log(log);
       res.json({
         msg: "Updated Successfully",
         pokeInfo: doc,
       });
     } else {
+      const log = await pokeLogModel.create({
+        username: payload.user.username,
+        endpoint: req.path,
+        status: res.statusCode,
+      });
+      console.log(log);
       // res.json({  msg: "Not found" })
       throw new PokemonNotFoundError("");
     }
@@ -213,6 +308,10 @@ app.patch(
 );
 
 app.get("/report", (req, res) => {
+  const payload = jwt.verify(
+    req.header("auth-token-access"),
+    process.env.ACCESS_TOKEN_SECRET
+  );
   console.log("Report requested");
   res.send(`Table ${req.query.id}`);
 });
