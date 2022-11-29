@@ -1,0 +1,32 @@
+POST http://localhost:6767/register
+Content-Type: application/json
+
+{
+  "username": "admin1",
+  "password": "admin",
+  "email": "admin1@admin.ca",
+  "role": "admin"
+}
+
+###
+# @name login
+POST http://localhost:6767/login
+Content-Type: application/json
+
+{
+  "username": "admin1",
+  "password": "admin"
+}
+
+###
+@ACCESS_TOKEN = {{login.response.headers.auth-token-access}}
+
+@REFRESH_TOKEN = {{login.response.headers.auth-token-refresh}}
+###
+
+GET http://localhost:6969/api/v1/pokemon?id=77&appid
+auth-token-access: {{ACCESS_TOKEN}}
+###
+
+POST http://localhost:6767/requestNewAccessToken
+auth-token-refresh: {{REFRESH_TOKEN}}
