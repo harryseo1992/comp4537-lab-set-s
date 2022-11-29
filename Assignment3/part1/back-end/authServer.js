@@ -11,30 +11,33 @@ const {
   PokemonDbError,
   PokemonAuthError,
 } = require("./pokemonErrors");
+const { connectDB } = require("./connectDB");
 
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
-app.listen(process.env.AUTHPORT, async () => {
-  try {
-    // mongoose.connect('mongodb+srv://harryseo:Ehp6KQhDfGFMrBdC@cluster0.yo3qkig.mongodb.net/pokemonDatabase?retryWrites=true&w=majority');
-    const x = await mongoose.connect(process.env.DB_STRING);
-    mongoose.connection.db.dropDatabase();
-  } catch (err) {
-    throw new PokemonDbError(err);
-  }
-  const doc = await userModel.findOne({ username: "admin" });
-  if (!doc)
-    userModel.create({
-      username: "admin",
-      password: bcrypt.hashSync("admin", 10),
-      role: "admin",
-      email: "admin@admin.ca",
-    });
+const start = asyncWrapper(async () => {
+  await connectDB({ drop: false });
+
+  app.listen(process.env.AUTHPORT, async (err) => {
+    if (err) throw new PokemonDbError(err);
+    else
+      console.log(`Phew! Server is running on port: ${process.env.AUTHPORT}`);
+    const doc = await userModel.findOne({ username: "admin" });
+    if (!doc)
+      userModel.create({
+        username: "admin",
+        password: bcrypt.hashSync("admin", 10),
+        role: "admin",
+        email: "admin@admin.ca",
+      });
+  });
 });
+start();
 app.use(express.json());
-app.use(cookieParser());
+// app.use(cookieParser());
+// app.use(cors());
 app.use(
   cors({
     exposedHeaders: ["auth-token-access", "auth-token-refresh"],
@@ -66,10 +69,10 @@ app.post(
     var isRefreshTokenInDb = await refreshTokenModel.find({
       refreshToken: refreshToken,
     });
-    if (isRefreshTokenInDb) {
+    if (!isRefreshTokenInDb) {
       console.log("token: ", refreshToken);
       throw new PokemonAuthError(
-        "Invalid Toekn: Please provide a valid token."
+        "Invalid Token: Please provide a valid token."
       );
     }
     try {
@@ -95,11 +98,6 @@ app.post(
   "/login",
   asyncWrapper(async (req, res) => {
     const { username, password } = req.body;
-    const options = {
-      new: true,
-      runValidators: true,
-      overwrite: true,
-    };
     const user = await userModel.findOne({ username });
     if (!user) {
       throw new PokemonBadRequestUserNotFound();
@@ -124,7 +122,7 @@ app.post(
 
     res.header("auth-token-access", accessToken);
     res.header("auth-token-refresh", refreshToken);
-
+    // console.log(res.header("auth-token-access"));
     // res.send("All good!")
     res.send(user);
   })
