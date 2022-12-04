@@ -2,9 +2,9 @@ POST http://localhost:6767/register
 Content-Type: application/json
 
 {
-  "username": "admin1",
+  "username": "admin2",
   "password": "admin",
-  "email": "admin1@admin.ca",
+  "email": "admin12@admin.ca",
   "role": "admin"
 }
 
@@ -14,7 +14,7 @@ POST http://localhost:6767/login
 Content-Type: application/json
 
 {
-  "username": "admin1",
+  "username": "admin2",
   "password": "admin"
 }
 
@@ -24,9 +24,42 @@ Content-Type: application/json
 @REFRESH_TOKEN = {{login.response.headers.auth-token-refresh}}
 ###
 
-GET http://localhost:6969/api/v1/pokemon?id=77&appid
+GET http://localhost:6969/api/v1/pokemon?id=77&appid={{ACCESS_TOKEN}}
 auth-token-access: {{ACCESS_TOKEN}}
 ###
 
+GET http://localhost:6969/api/v1/pokemon?id=999&appid={{ACCESS_TOKEN}}
+auth-token-access: {{ACCESS_TOKEN}}
+###
+
+GET http://localhost:6969/api/v1/pokemons
+auth-token-access: {{ACCESS_TOKEN}}
+
+###
+# @name requestNewAccessToken
 POST http://localhost:6767/requestNewAccessToken
 auth-token-refresh: {{REFRESH_TOKEN}}
+
+###
+GET http://localhost:6969/report?id=1
+auth-token-access: {{ACCESS_TOKEN}}
+
+###
+
+GET http://localhost:6969/report?id=2
+auth-token-access: {{ACCESS_TOKEN}}
+
+###
+
+GET http://localhost:6969/report?id=3
+auth-token-access: {{ACCESS_TOKEN}}
+
+###
+
+GET http://localhost:6969/report?id=4
+auth-token-access: {{ACCESS_TOKEN}}
+
+###
+
+GET http://localhost:6969/report?id=5
+auth-token-access: {{ACCESS_TOKEN}}
