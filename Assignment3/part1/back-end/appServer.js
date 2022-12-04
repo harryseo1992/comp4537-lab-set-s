@@ -94,7 +94,7 @@ const authAdmin = asyncWrapper(async (req, res, next) => {
   const authLog = await pokeLogModel.create({
     username: payload.user.username,
     endpoint: req.path,
-    status: res.statusCode,
+    status: new PokemonAuthError().pokeErrCode,
   });
   console.log("AuthLog: " + authLog);
   throw new PokemonAuthError("Access Denied");
@@ -147,10 +147,10 @@ app.get(
       const log = await pokeLogModel.create({
         username: payload.user.username,
         endpoint: req.path,
-        status: res.statusCode,
+        status: new PokemonNotFoundError().pokeErrCode,
       });
       console.log(log);
-      return next(new PokemonNotFoundError("Pokemon not found!"));
+      throw new PokemonNotFoundError("Pokemon not found!");
     }
   })
 );
@@ -178,7 +178,7 @@ app.post(
       const log = await pokeLogModel.create({
         username: payload.user.username,
         endpoint: req.path,
-        status: res.statusCode,
+        status: new PokemonDuplicateError().pokeErrCode,
       });
       console.log(log);
       throw new PokemonDuplicateError();
@@ -221,7 +221,7 @@ app.delete(
       const log = await pokeLogModel.create({
         username: payload.user.username,
         endpoint: req.path,
-        status: res.statusCode,
+        status: new PokemonNotFoundError().pokeErrCode,
       });
       console.log(log);
       throw new PokemonNotFoundError("");
@@ -260,7 +260,7 @@ app.put(
       const log = await pokeLogModel.create({
         username: payload.user.username,
         endpoint: req.path,
-        status: res.statusCode,
+        status: new PokemonNotFoundError().pokeErrCode,
       });
       console.log(log);
       throw new PokemonNotFoundError("");
@@ -297,7 +297,7 @@ app.patch(
       const log = await pokeLogModel.create({
         username: payload.user.username,
         endpoint: req.path,
-        status: res.statusCode,
+        status: new PokemonNotFoundError().pokeErrCode,
       });
       console.log(log);
       // res.json({  msg: "Not found" })
@@ -307,13 +307,109 @@ app.patch(
   })
 );
 
-app.get("/report", (req, res) => {
-  const payload = jwt.verify(
-    req.header("auth-token-access"),
-    process.env.ACCESS_TOKEN_SECRET
-  );
-  console.log("Report requested");
-  res.send(`Table ${req.query.id}`);
-});
+app.get(
+  "/report",
+  asyncWrapper(async (req, res) => {
+    const payload = jwt.verify(
+      req.header("auth-token-access"),
+      process.env.ACCESS_TOKEN_SECRET
+    );
+    console.log("Report requested");
+    const pokeLogDocEndPoints = await pokeLogModel.aggregate([
+      {
+        $group: {
+          _id: "$endpoint",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    const pokeUsers = await userModel.aggregate([
+      {
+        $group: {
+          _id: {
+            $add: [
+              { $dayOfYear: "$date" },
+              { $multiply: [400, { $year: "$date" }] },
+            ],
+          },
+          count: { $sum: 1 },
+          first: { $min: "$date" },
+        },
+      },
+      { $sort: { _id: -1 } },
+      { $limit: 15 },
+      { $project: { date: "$first", count: 1, _id: 0 } },
+    ]);
+    const topAPIUser = await pokeLogModel.aggregate([
+      {
+        $group: {
+          _id: [
+            {
+              $add: [
+                { $dayOfYear: "$created_at" },
+                { $multiply: [400, { $year: "$created_at" }] },
+              ],
+            },
+            {
+              username: "$username",
+            },
+          ],
+          count: { $sum: 1 },
+          first: { $min: "$created_at" },
+        },
+      },
+      { $sort: { _id: -1 } },
+      { $limit: 15 },
+    ]);
+    const fourHundredErrorStatusCodes = await pokeLogModel.aggregate([
+      {
+        $match: {
+          $or: [{ status: { $gte: 400, $lt: 500 } }],
+        },
+      },
+      {
+        $group: {
+          _id: {
+            status: "$status",
+            endpoint: "$endpoint",
+          },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    const allErrorStatusCodes = await pokeLogModel.aggregate([
+      {
+        $match: {
+          $or: [{ status: { $gte: 400 } }],
+        },
+      },
+      {
+        $group: {
+          _id: {
+            status: "$status",
+            endpoint: "$endpoint",
+          },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+    // res.send(`Table ${req.query.id}`);
+    if (req.query.id == 1) {
+      res.send(pokeUsers);
+    }
+    if (req.query.id == 2) {
+      res.send(topAPIUser);
+    }
+    if (req.query.id == 3) {
+      res.send(pokeLogDocEndPoints);
+    }
+    if (req.query.id == 4) {
+      res.send(fourHundredErrorStatusCodes);
+    }
+    if (req.query.id == 5) {
+      res.send(allErrorStatusCodes);
+    }
+  })
+);
 
 app.use(handleErr);
