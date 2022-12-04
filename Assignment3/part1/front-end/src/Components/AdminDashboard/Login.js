@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Dashboard from "./Dashboard";
+import FilterablePokemon from "../FilterablePokemon/FilterablePokemon";
+import { Link, Route, Routes } from "react-router-dom";
 
 const Login = () => {
   const [userName, setUserName] = useState("");
@@ -11,10 +13,6 @@ const Login = () => {
 
   useEffect(() => {
     const autoRegister = async () => {
-      // await axios.post("http://localhost:6767/register", {
-      //   username: "admin",
-      //   password: "admin",
-      // });
       await axios({
         method: "POST",
         url: "http://localhost:6767/register",
@@ -24,6 +22,7 @@ const Login = () => {
         data: JSON.stringify({
           username: "admin1",
           password: "admin",
+          email: "admin@gmail.com",
           role: "admin",
         }),
         validateStatus: (status) => {
@@ -95,6 +94,9 @@ const Login = () => {
           <button type="submit">Login</button>
         </form>
       )}
+      <div>
+        <Link to="/pokedex">Link to pokedex for clients</Link>
+      </div>
     </div>
   );
 };
