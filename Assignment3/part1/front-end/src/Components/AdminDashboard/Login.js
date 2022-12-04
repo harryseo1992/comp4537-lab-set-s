@@ -76,27 +76,29 @@ const Login = () => {
           />
         </>
       ) : (
-        <form onSubmit={handleSubmit}>
-          <span> Admin Login </span>
-          <br />
-          <input
-            type="text"
-            placeholder="username"
-            onChange={(e) => setUserName(e.target.value)}
-          />
-          <br />
-          <input
-            type="password"
-            placeholder="password"
-            onChange={(e) => setPassWord(e.target.value)}
-          />
-          <br />
-          <button type="submit">Login</button>
-        </form>
+        <>
+          <form onSubmit={handleSubmit}>
+            <span> Admin Login </span>
+            <br />
+            <input
+              type="text"
+              placeholder="username"
+              onChange={(e) => setUserName(e.target.value)}
+            />
+            <br />
+            <input
+              type="password"
+              placeholder="password"
+              onChange={(e) => setPassWord(e.target.value)}
+            />
+            <br />
+            <button type="submit">Login</button>
+          </form>
+          <div>
+            <Link to="/pokedex">Link to pokedex for clients</Link>
+          </div>
+        </>
       )}
-      <div>
-        <Link to="/pokedex">Link to pokedex for clients</Link>
-      </div>
     </div>
   );
 };

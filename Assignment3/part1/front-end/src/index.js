@@ -11,7 +11,7 @@ root.render(
     <h1>
       <Router>
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/*" element={<Login />} />
           <Route path="/pokedex" element={<FilterablePokemon />} />
         </Routes>
       </Router>
